@@ -31,7 +31,21 @@ typedef struct {
 } Simulador;
 
 // Funções principais
-Simulador* simulador_criar(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algo);
+Simulador* simulador_criar(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido) {
+
+    switch (algoritmoEscolhido) { 
+        case 0: //Algoritmo FIFO -> ir para memória?
+            break;
+        case 1: //Algoritmo RANDOM
+            break;
+        case 2: //Algoritmo LRU
+            break;
+        case 3: //Algoritmo Clock
+            break;
+        default:
+            printf("ERRO: Algoritmo de substituição inválido.\n");
+            return NULL;
+    }
 
 void simulador_destruir(Simulador *sim);
 
