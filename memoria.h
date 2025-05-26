@@ -6,7 +6,8 @@
 #define FRAME_INVALIDO -1
 
 typedef struct {
-
+    int tamanho_memoria;             // Tamanho total da memória física em bytes
+    int tamanho_pagina;              // Tamanho de cada página em bytes
     int num_frames;                  // Número total de frames na memória
     int *frames;                     // Array de frames (cada frame armazena PID + nº página)
     int *tempo_carga;                // Instante em que cada frame foi carregado (para FIFO)
@@ -17,7 +18,7 @@ typedef struct {
 } MemoriaFisica;
 
 // Cria uma memória física com 'num_frames' frames
-MemoriaFisica* memoria_criar(int num_frames);
+MemoriaFisica* memoria_criar(int tamanho_memoria, int tamanho_pagina, int num_frames);
 
 // Destrói a memória física
 void memoria_destruir(MemoriaFisica *mem);
