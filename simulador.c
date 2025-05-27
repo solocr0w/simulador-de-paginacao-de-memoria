@@ -5,6 +5,12 @@
 #include "processo.h"
 #include "tabela-pagina.h"
 
+//TODO: 
+// 1. Implementar as função simulador_adicionar_processo
+// 2. Implementar a função simulador_exibir_processos
+// 3. Implementar a função simulador_exibir_memoria
+
+
 Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames) {
     Simulador *sim = malloc(sizeof(Simulador));
     if (!sim) {
@@ -39,7 +45,7 @@ void simulador_destruir(Simulador *sim) {
     if (sim) {
         memoria_destruir(sim->memoria);
         for (int i = 0; i < sim->num_processos; i++) {
-            processo_destruir(sim->processos[i]);
+            //processo_destruir(sim->processos[i]);
         }
         free(sim->processos);
         free(sim);
@@ -66,9 +72,65 @@ void simulador_exibir_memoria(Simulador *sim) {
         return;
     }
     printf("\n===== ESTADO ATUAL DA MEMÓRIA =====\n");
-    memoria_exibir(sim->memoria);
+    //memoria_exibir(sim->memoria);
 }
 
 void simulador_exibir_processos(Simulador *sim) {}
 
 Processo* simulador_adicionar_processo(Simulador *sim, int pid, int tamanho_processo) {}
+
+void loopSimulador(Simulador *sim) {
+    if (!sim) {
+        printf("Simulador não inicializado.\n");
+        return;
+    }
+    
+    int opcao;
+    do {
+        printf("\n===== MENU DO SIMULADOR =====\n");
+        printf("1. Criar um novo processo.\n");
+        printf("2. Exibir estado da memória física\n");
+        printf("3. Exibir tabela de processos\n");
+        printf("4. Exibir estatísticas\n");
+        printf("5. Sair\n");
+        printf("Escolha uma opção: ");
+
+        scanf("%d", &opcao);
+        if (opcao < 1 || opcao > 5) {
+            printf("Opção inválida. Tente novamente.\n");
+            continue;
+        }
+    
+        switch(opcao) {
+            case 1:
+                // Gerei esse filler mas na real aqui vai ficar a função de gerar processos
+                printf("Criando um novo processo...\n");
+                int pid, tamanho_processo;
+                printf("Digite o PID do processo: ");
+                scanf("%d", &pid);
+                printf("Digite o tamanho do processo em bytes: ");
+                scanf("%d", &tamanho_processo);
+                Processo *novo_processo = simulador_adicionar_processo(sim, pid, tamanho_processo);
+                if (novo_processo) {
+                    printf("Processo %d criado com sucesso!\n", pid);
+                } else {
+                    printf("Erro ao criar o processo.\n");
+                }
+                break;
+            case 2:
+                //memoria_exibir(sim->memoria);
+                break;
+            case 3:
+                // Será que vale a pena fazer?
+                break;
+            case 4:
+                simulador_exibir_estatisticas(sim);
+                break;
+            case 5:
+                printf("Saindo do simulador...\n");
+                break;
+            default:
+                printf("Opção inválida. Tente novamente.\n");
+        }
+    } while (opcao != 5);
+};

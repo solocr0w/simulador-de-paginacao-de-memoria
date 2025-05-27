@@ -32,10 +32,8 @@ typedef struct {
 
 
 // Funções principais
-Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames) {
-    Simulador *sim = malloc(sizeof(Simulador));
- }
-
+Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames);
+   
 // Input Listening para a simulação, onde será executado o menu de simulação
 void loopSimulador(Simulador *sim);
 

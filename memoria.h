@@ -1,7 +1,8 @@
 #ifndef MEMORIA_H
 #define MEMORIA_H
+#include <stdbool.h>
+#include "processo.h"
 
-#include "tabela-pagina.h"
 
 #define FRAME_INVALIDO -1
 
@@ -13,14 +14,18 @@ typedef struct {
     int *tempo_carga;                // Instante em que cada frame foi carregado (para FIFO)
     bool *referenciada;               // Bit R (para Clock/Second Chance)
     bool *modificada;                 // Bit M (para substituição)
-    int tempo_atual;                  // Relógio global da simulação
-    
+    int tempo_atual;                  // Relógio global da simulação 
 } MemoriaFisica;
 
-// Cria uma memória física com 'num_frames' frames
-MemoriaFisica* memoria_criar(int tamanho_memoria, int tamanho_pagina, int num_frames);
+typedef struct {
+    int pid;          // ID do processo dono do frame
+    int num_pagina;  // Número da página alocada neste frame
+} Frame;
 
-// Destrói a memória física
+void memoria_exibir(MemoriaFisica *mem);
+
+MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int numFrames);
+
 void memoria_destruir(MemoriaFisica *mem);
 
 // Aloca uma página em um frame livre (retorna nº do frame ou -1)
@@ -33,6 +38,5 @@ void memoria_liberar_frame(MemoriaFisica *mem, int frame);
 int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);
 
 // Exibe o estado atual da memória física (para debug/simulação)
-void memoria_exibir(MemoriaFisica *mem);
 
 #endif
