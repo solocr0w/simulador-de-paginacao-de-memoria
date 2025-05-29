@@ -5,6 +5,7 @@
 #include "processo.h"
 #include "tabela-pagina.h"
 #include "pagina.h"
+#include <limits.h> //INT_MAX
 
 //TODO: 
 // 1. Implementar as função simulador_adicionar_processo
@@ -56,9 +57,8 @@ void simulador_destruir(Simulador *sim) {
 /* --- ESTRUTURA DA FUNÇÃO ---
 //01. Identifica qual pagina deve ser removida com base no algoritmo de substituição selecionado.
 //02. Remove a página da memória física.
-//03. Atualiza a tabela de páginas do processo + infos da pagina removida.
-//04. Adiciona a nova página na memória física.
-//05. Atualiza a tabela de páginas do processo com a nova página.
+//03. Adiciona a nova página.
+//04. Atualiza a tabela.
 */
 void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
 
@@ -73,6 +73,8 @@ void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
             printf("Substituição FIFO selecionada.\n");
             int mais_antigo = INT_MAX;
                 for (int i = 0; i < sim->memoria->num_frames; i++) {
+
+                    //compara o tempo de carga e, se for menor que o atual "mais antigo", atualiza
                     if (sim->memoria->frames[i].tempo_carga < mais_antigo) {
                         mais_antigo = sim->memoria->frames[i].tempo_carga;
                         frame_escolhido = i;
@@ -96,6 +98,27 @@ void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
             printf("Substituição Clock selecionada.\n");
             break;
     }
+
+    //Remove a antiga -> que ocupa o frame antes de ser atualizado
+    removerFrame(sim, frame_escolhido);
+
+    //Atualiza frame
+    Frame *novo_frame = &sim->memoria->frames[frame_escolhido];
+    novo_frame->pid = pid;
+    novo_frame->num_pagina = num_pagina;
+    novo_frame->referenciada = true;
+    novo_frame->modificada = false;
+    novo_frame->tempo_carga = sim->tempo_sistema;
+
+    //Atualiza tabela
+    Processo *proc = sim->processos[pid];
+    Pagina *pagina = &proc->tabela->paginas[num_pagina];
+    pagina->presente = true;
+    pagina->frame = frame_escolhido;
+    pagina->referenciada = true;
+    pagina->modificada = false;
+    pagina->tempo_carga = sim->tempo_sistema;
+    pagina->ultimo_acesso = sim->tempo_sistema;
 
 }
 

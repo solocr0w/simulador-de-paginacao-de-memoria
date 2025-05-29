@@ -67,20 +67,31 @@ int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);
 void memoria_exibir(MemoriaFisica *mem);
 
 void removerFrame(Simulador *sim, int frame_id) {
-    Frame *frame = &sim->memoria->frames[frame_id];
-    int pid = frame->pid;
-    int num_pagina = frame->num_pagina;
 
+    Frame *frame = &sim->memoria->frames[frame_id];
+    
+    // Se o frame já estiver livre, nada a fazer
+    if (frame->pid == -1) return;
+    int pid_dono = frame->pid;
+    int pagina_dona = frame->num_pagina;
+
+    // Busca o processo correspondente
     for (int i = 0; i < sim->num_processos; i++) {
-        if (sim->processos[i]->pid == pid) {
-            Pagina *pagina = &sim->processos[i]->tabela->paginas[num_pagina];
+        Processo *proc = sim->processos[i];
+        if (proc->pid == pid_dono) {
+            //atualiza as paginas
+            Pagina *pagina = &proc->tabela->paginas[pagina_dona];
+
             pagina->presente = false;
             pagina->frame = -1;
+            pagina->referenciada = false;
+            pagina->modificada = false;
+
             break;
         }
     }
 
-    // Limpar o frame -> removendo-o
+    //Limpa o frame, removendo-o
     frame->pid = -1;
     frame->num_pagina = -1;
     frame->referenciada = false;
