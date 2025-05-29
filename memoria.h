@@ -35,8 +35,11 @@ void memoria_liberar_frame(MemoriaFisica *mem, int frame);
 int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);
 
 // Exibe o estado atual da memória física (para debug/simulação)
+void memoria_exibir(MemoriaFisica *mem);
 
-
+// Remove uma página do frame específico 
+void removerFrame(Simulador *sim, int frame_id) {
+}
 
 
 #endif

@@ -3,6 +3,9 @@
 #include <string.h>
 #include "simulador.h"
 #include "memoria.h"
+#include "processo.h"
+#include "pagina.h"
+
 
 int lerInteiro(const char* prompt) {
     char buffer[100];

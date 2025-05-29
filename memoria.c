@@ -3,6 +3,7 @@
 #include "memoria.h"
 #include "tabela-pagina.h"
 #include "processo.h"
+#include "simulador.h"
 #include <stdbool.h>
 
 
@@ -64,3 +65,25 @@ int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);
 
 // Exibe o estado atual da memória física (para debug/simulação)
 void memoria_exibir(MemoriaFisica *mem);
+
+void removerFrame(Simulador *sim, int frame_id) {
+    Frame *frame = &sim->memoria->frames[frame_id];
+    int pid = frame->pid;
+    int num_pagina = frame->num_pagina;
+
+    for (int i = 0; i < sim->num_processos; i++) {
+        if (sim->processos[i]->pid == pid) {
+            Pagina *pagina = &sim->processos[i]->tabela->paginas[num_pagina];
+            pagina->presente = false;
+            pagina->frame = -1;
+            break;
+        }
+    }
+
+    // Limpar o frame -> removendo-o
+    frame->pid = -1;
+    frame->num_pagina = -1;
+    frame->referenciada = false;
+    frame->modificada = false;
+    frame->tempo_carga = 0;
+}
