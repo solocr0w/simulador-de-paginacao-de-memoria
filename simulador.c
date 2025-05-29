@@ -109,14 +109,14 @@ void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
 
     //Atualiza tabela
     Processo *proc = sim->processos[pid];
-    Pagina *pagina = proc->tabela->paginas[num_pagina];
+
+    Pagina *pagina = &proc->tabela->paginas[num_pagina];
     pagina->presente = true;
     pagina->frame = frame_escolhido;
     pagina->referenciada = true;
     pagina->modificada = false;
     pagina->tempo_carga = sim->tempo_sistema;
     pagina->ultimo_acesso = sim->tempo_sistema;
-
 }
 
 void simulador_exibir_estatisticas(Simulador *sim) {
