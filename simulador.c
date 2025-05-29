@@ -1,9 +1,9 @@
-#include "simulador.h"
-#include "memoria.h"
-#include "processo.h"
-#include <stdio.h>
+#include "simulador.h"  // 1. Seu próprio header
+#include <stdio.h>      // 2. Headers do sistema
 #include <stdlib.h>
-#include <limits.h> 
+#include <limits.h>
+#include "memoria.h"    // 3. Outros headers do projeto
+#include "processo.h"
 
 
 Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames, int total_processos, int *tamanho_processos, int tempo_total_sistema) {

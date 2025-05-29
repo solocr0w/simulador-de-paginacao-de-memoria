@@ -1,7 +1,6 @@
 #ifndef SIMULADOR_H
 #define SIMULADOR_H
 
-#include "processo.h"
 #include "memoria.h"
 
 // Define os algoritmos de substituição suportados

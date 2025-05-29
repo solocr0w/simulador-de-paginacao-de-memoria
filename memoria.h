@@ -3,9 +3,9 @@
 #define FRAME_INVALIDO -1
 
 #include <stdbool.h>
-#include "processo.h"
-#include "simulador.h"
 #include <limits.h>
+
+#include "processo.h"
 
 
 typedef struct {
