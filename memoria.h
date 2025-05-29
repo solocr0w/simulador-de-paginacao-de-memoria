@@ -36,17 +36,16 @@ int memoria_alocar_frame_ocupado(Simulador *sim, int pid, int num_pagina, int fr
 int memoria_alocar_frame(Simulador *sim, int pid, int num_pagina);
 
 // Libera um frame específico
-void memoria_liberar_frame(MemoriaFisica *mem, int frame);
+void memoria_liberar_frame(Simulador *sim, int frame);
 
 // Busca um frame que contém a página (pid, num_pagina) (retorna -1 se não encontrado)
-int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);
+int memoria_buscar_frame(Simulador *sim, int pid, int num_pagina);
 
 // Exibe o estado atual da memória física (para debug/simulação)
-void memoria_exibir(MemoriaFisica *mem);
+void memoria_exibir(Simulador *sim);
 
 // Remove uma página do frame específico 
-void removerFrame(Simulador *sim, int frame_id) {
-}
+void removerFrame(Simulador *sim, int frame_id);
 
 
 #endif

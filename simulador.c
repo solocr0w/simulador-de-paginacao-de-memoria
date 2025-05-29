@@ -7,11 +7,6 @@
 #include "pagina.h"
 #include <limits.h> //INT_MAX
 
-//TODO: 
-// 1. Implementar as função simulador_adicionar_processo
-// 2. Implementar a função simulador_exibir_processos
-// 3. Implementar a função simulador_exibir_memoria
-
 
 Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames, int total_processos, int *tamanho_processos, int tempo_total_sistema) {
 
@@ -125,8 +120,6 @@ void simulador_exibir_memoria(Simulador *sim) {
     printf("\n===== ESTADO ATUAL DA MEMÓRIA =====\n");
     //memoria_exibir(sim->memoria);
 }
-
-void simulador_exibir_processos(Simulador *sim){}
 
 Processo* simulador_adicionar_processo(Simulador *sim){
 
@@ -262,3 +255,5 @@ void loopSimulador(Simulador *sim) {
     simulador_destruir(sim);
 
 };
+
+

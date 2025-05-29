@@ -26,6 +26,27 @@ Processo* processo_criar(int pid, int tamanho, int tamanho_pagina){
     return processo;
 }
 
+//Extrai o número da página e o deslocamento de um endereço virtual
+void processo_extrair_endereco(Processo *processo, int endereco_virtual, int *num_pagina, int *deslocamento, int tamanho_pagina){
+
+    if (!processo || !num_pagina || !deslocamento) {
+        fprintf(stderr, "Processo ou ponteiros inválidos.\n");
+        return;
+    }
+    
+    *num_pagina = endereco_virtual / tamanho_pagina; // Número da página
+    *deslocamento = endereco_virtual % tamanho_pagina; // Deslocamento dentro da página
+    
+    if (*num_pagina >= processo->num_paginas) {
+        fprintf(stderr, "Endereço virtual fora dos limites do processo.\n");
+        *num_pagina = -1; // Indica erro
+        *deslocamento = -1; // Indica erro
+    }
+
+}
+
+
+
 // Busca por um processo pelo PID
 Processo* processo_busca(Simulador *sim, int pid){
     if (!sim || !sim->processos) {
@@ -60,4 +81,41 @@ void processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_p
         pagina->ultimo_acesso = pagina->presente? sim->tempo_sistema :0; // Define o último acesso com o tempo do sistema ou 0 se não estiver presente
     }
     
+}
+
+// Destrói o processo (libera memória)
+void processo_destruir(Simulador *sim, Processo *processo){
+    if (!processo) {
+        return;
+    }
+
+    // Libera a tabela de páginas
+    if (processo->tabela) {
+        free(processo->tabela->paginas);
+        free(processo->tabela);
+    }
+
+    // Libera o processo
+    free(processo);
+
+    // Remove o processo do simulador
+    for (int i = 0; i < sim->num_processos; i++) {
+        if (sim->processos[i]->pid == processo->pid) {
+            for (int j = i; j < sim->num_processos - 1; j++) {
+                sim->processos[j] = sim->processos[j + 1];
+            }
+            sim->num_processos--;
+            break;
+        }
+    }
+
+    //Desaloca a memória física ocupada pelo processo
+    for (int i = 0; i < processo->num_paginas; i++) {
+        Pagina *pagina = &processo->tabela->paginas[i];
+        if (pagina->presente) {
+            memoria_liberar_frame(sim, pagina->frame);
+            tabela_paginas_atualizar_nao_presente(processo->tabela, i);
+        }
+    }
+
 }

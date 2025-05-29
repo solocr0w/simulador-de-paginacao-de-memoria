@@ -33,3 +33,27 @@ TabelaPaginas* tabela_paginas_criar(int pid, int num_paginas){
     
     return tabela;
 }
+
+//Atualiza a o frame em uma tabela de pagina e marcar como presente
+void tabela_paginas_atualizar_presente(TabelaPaginas *tabela, int num_pagina, int frame){
+    if (num_pagina < 0 || num_pagina >= tabela->tamanho) {
+        fprintf(stderr, "Número de página inválido: %d\n", num_pagina);
+        return;
+    }
+    
+    tabela->paginas[num_pagina].presente = 1; // Marca como presente
+    tabela->paginas[num_pagina].frame = frame; // Atualiza o frame alocado
+}
+
+// Marca uma página como não presente na memória física
+void tabela_paginas_atualizar_nao_presente(TabelaPaginas *tabela, int num_pagina){
+    
+    if (num_pagina < 0 || num_pagina >= tabela->tamanho) {
+        fprintf(stderr, "Número de página inválido: %d\n", num_pagina);
+        return;
+    }
+    
+    tabela->paginas[num_pagina].presente = 0; // Marca como não presente
+    tabela->paginas[num_pagina].frame = -1; // Reseta o frame alocado
+    tabela->paginas[num_pagina].tempo_carga = 0; // Reseta o tempo de carga
+}

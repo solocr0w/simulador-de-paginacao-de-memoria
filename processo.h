@@ -22,10 +22,9 @@ void processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_p
 Processo* processo_busca(Simulador *sim, int pid);
 
 // Destrói o processo (libera memória)
-void processo_destruir(Processo *processo);
+void processo_destruir(Simulador *sim, Processo *processo);
 
 // Traduz um endereço virtual para número de página e deslocamento
-void processo_extrair_endereco(Processo *processo, int endereco_virtual, 
-                               int *num_pagina, int *deslocamento, int tamanho_pagina);
+void processo_extrair_endereco(Processo *processo, int endereco_virtual, int *num_pagina, int *deslocamento, int tamanho_pagina);
 
 #endif
