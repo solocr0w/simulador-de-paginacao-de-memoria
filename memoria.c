@@ -18,7 +18,7 @@ MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int
 
     memoria->num_frames = numFrames;
     memoria->frames = calloc(sizeof(Frame), numFrames);
-    
+    memoria->ultimo_frame_removido = 0;
     if (!memoria->frames) {
         free(memoria);
         fprintf(stderr, "Erro ao alocar memória para os frames.\n");
