@@ -19,11 +19,6 @@ MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int
     memoria->num_frames = numFrames;
     memoria->frames = calloc(sizeof(Frame), numFrames);
     memoria->ultimo_frame_removido = 0;
-    if (!memoria->frames) {
-        free(memoria);
-        fprintf(stderr, "Erro ao alocar memória para os frames.\n");
-        return NULL;
-    }
 
     // Inicializa todos os frames
     for (int i = 0; i < numFrames; i++) {
@@ -33,7 +28,6 @@ MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int
         memoria->frames[i].modificada = false; // Inicializa o bit M como 0
     }
 
-    printf("Memória física criada com sucesso!\n");
     return memoria;
 }
 
@@ -99,24 +93,20 @@ int algoritimosSubstituicao(MemoriaFisica *mem, int pid, int num_pagina, int alg
 
         //First In First Out: funciona como uma fila, o primeiro a entrar é o primeiro a sair
         case 0 : //FIFO
-            printf("Substituição FIFO selecionada.\n");
-            
+            frame_escolhido = mem->ultimo_frame_removido; // Pega o último frame removido
             break;
 
         //Random: literalmente aleatorio
         case 1: //RANDOM
-            printf("Substituição aleatória selecionada.\n");
             frame_escolhido = rand() % mem->num_frames;
             break;
 
         //Least Recently Used: o que não é mais usado há mais tempo (que tem o maior "ultimo acesso")
         case 2: //LRU
-            printf("Substituição LRU selecionada.\n");
             break;
 
         //Clock: quase igual o LRU, mas usa um bit de referência para cada página
-        case 3: //CLOCK
-            printf("Substituição Clock selecionada.\n");
+        case 3: //CLOCK;
             break;
     }
 
@@ -184,4 +174,5 @@ void removerFrame(MemoriaFisica *mem, Processo *processoDono, int frame_id) {
     frame->num_pagina = -1;
     frame->referenciada = false;
     frame->modificada = false;
+    mem->ultimo_frame_removido = (mem->ultimo_frame_removido+1) % mem->num_frames; // Atualiza o último frame removido
 }

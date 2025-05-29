@@ -161,7 +161,7 @@ void simulador_exibir_memoria(Simulador *sim) {
     memoria_exibir(sim->memoria);
 }
 
-Processo *simulador_adicionar_processo(Simulador *sim)
+Processo *simulador_adicionar_processo(Simulador *sim, int tamanho_processo)
 {
 
     if (!sim)
@@ -170,8 +170,6 @@ Processo *simulador_adicionar_processo(Simulador *sim)
         return NULL;
     }
 
-    // Encontra um tamanho de processo com até 10 páginas
-    int tamanho_processo = (rand() % 10 + 1) * sim->tamanho_pagina; // Gera um tamanho entre 1 e 10 páginas
 
     // Escolhendo o PID do novo processo
     int pid;
@@ -256,7 +254,8 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
         int endereco_fisico = frame * sim->tamanho_pagina + deslocamento;
 
         printf("Tempo t=%d: ", sim->tempo_sistema);
-        printf("[BUSCA FRAME] Endereço virtual (P%d): %d -> Página: %d -> Frame: %d -> Endereço físico: %d\n", pid, endereco_virtual, num_pagina, frame, endereco_fisico);
+        printf("[PAGE HIT] Endereço virtual (P%d): %d -> Página: %d -> Frame: %d -> Endereço físico: %d\n", pid, endereco_virtual, num_pagina, frame, endereco_fisico);
+        printf("\n");
 
         processo->tabela->paginas[num_pagina].ultimo_acesso = sim->tempo_sistema;
     }
@@ -268,7 +267,7 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
 void loopSimulador(Simulador *sim) {
 
     for(int i = 0; i < sim->total_processos; i++) {
-        Processo *processo = simulador_adicionar_processo(sim);
+        Processo *processo = simulador_adicionar_processo(sim, sim->tamanho_processos[i]);
     }
 
 

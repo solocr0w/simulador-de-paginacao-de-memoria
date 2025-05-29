@@ -7,18 +7,9 @@
 // Cria uma nova tabela de páginas para um processo
 TabelaPaginas* tabela_paginas_criar(int pid, int num_paginas){
     TabelaPaginas *tabela = malloc(sizeof(TabelaPaginas));
-    if (!tabela) {
-        fprintf(stderr, "Erro ao alocar memória para a tabela de páginas.\n");
-        return NULL;
-    }
-    
+
     tabela->paginas = malloc(sizeof(Pagina) * num_paginas);
-    if (!tabela->paginas) {
-        free(tabela);
-        fprintf(stderr, "Erro ao alocar memória para as páginas.\n");
-        return NULL;
-    }
-    
+
     for (int i = 0; i < num_paginas; i++) {
         tabela->paginas[i].frame = -1; // Sem frame alocado
         tabela->paginas[i].presente = 0; // Inicialmente não está presente

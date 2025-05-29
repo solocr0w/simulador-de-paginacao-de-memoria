@@ -40,7 +40,9 @@ void novaSimulacao() {
         printf("Processo %d: ", i);
         tamanhoProcessos[i] = lerInteiro("Digite o tamanho do processo em bytes: ");
     }
-    numFrames = tamanhoMemoria / tamanhoPagina;
+    
+    //arredonda o numeros de frames para cima
+    numFrames = (tamanhoMemoria + tamanhoPagina - 1) / tamanhoPagina; // arredonda para cima
     
     printf("Selecione o algoritmo de substituição:\n");
     printf("1-FIFO\n2-LRU\n3-CLOCK\n4-RANDOM\n");

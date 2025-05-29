@@ -60,7 +60,7 @@ void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int
 void simulador_destruir(Simulador *sim);
 
 // Adiciona um novo processo ao simulador
-Processo* simulador_adicionar_processo(Simulador *sim);
+Processo *simulador_adicionar_processo(Simulador *sim, int tamanho_processo);
 
 // Simula um acesso à memória virtual de um processo
 int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual);
