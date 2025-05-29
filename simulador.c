@@ -107,6 +107,22 @@ void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int
     
 }
 
+Processo* simulador_processo_frame(Simulador* sim, int frame){
+    if (!sim || !sim->processos) {
+        return NULL;
+    }
+    for (int i = 0; i < sim->num_processos; i++) {
+        Processo *proc = sim->processos[i];
+        for (int j = 0; j < proc->num_paginas; j++) {
+            Pagina *pagina = &proc->tabela->paginas[j];
+            if (pagina->presente && pagina->frame == frame) {
+                return proc; // Retorna o processo que possui a página no frame
+            }
+        }
+    }
+    return NULL; // Nenhum processo encontrado com a página no frame especificado
+}
+
 
 // Busca por um processo pelo PID
 Processo* simulador_processo_busca(Simulador *sim, int pid){
@@ -201,13 +217,6 @@ Processo* simulador_adicionar_processo(Simulador *sim){
 }
 
 
-//Busca o processo dentro do frame
-Processo* simulador_processo_frame(Simulador* sim, int frame){
-    
-}
-
-
-
 int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
     if (!sim || !sim->memoria) {
         printf("Simulador ou memória não inicializados.\n");
@@ -236,8 +245,8 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
         // Aloca um frame para a página
         Processo *ProcessoNovo = simulador_processo_busca(sim, pid);
         int frameEscolhido = algoritimosSubstituicao(sim->memoria, pid, num_pagina, sim->algoritmo);
-        Processo *Processo_antigo = simulador_processo_busca(sim, )
-        frame = memoria_alocar_frame(sim->memoria, ProcessoNovo, Process,pid, num_pagina);
+        Processo *Processo_antigo = simulador_processo_frame(sim, frameEscolhido);
+        frame = memoria_alocar_frame(sim->memoria, ProcessoNovo, Processo_antigo, frameEscolhido, pid, num_pagina);
 
         if (frame == -1) {
             printf("Erro ao alocar frame para o processo %d.\n", pid);

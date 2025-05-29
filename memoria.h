@@ -31,8 +31,8 @@ int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina);
 // Aloca uma página em um frame específico (retorna 0 se sucesso, -1 se falha)
 int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Processo *ProcessoAntigo,int pid, int num_pagina, int frame);
 
-//Tenta alocar um frame livre, caso não consiga, utiliza o algoritimo de substituição e aloca um frame ocupado
-int memoria_alocar_frame(MemoriaFisica *mem, Processo* ProcessoNovo, Processo* ProcessoAntigo, int pid, int num_pagina);
+//Tenta alocar um frame livre, caso não consiga, utiliza o forame escolhido o frame mesmo ocupado
+int memoria_alocar_frame(MemoriaFisica *mem, Processo* ProcessoNovo, Processo* ProcessoAntigo, int frame_escolhido, int pid, int num_pagina);
 
 // Libera um frame específico
 void memoria_liberar_frame(MemoriaFisica *mem, int frame);
