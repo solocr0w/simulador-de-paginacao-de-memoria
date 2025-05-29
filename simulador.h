@@ -51,6 +51,6 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual);
 // Exibe o estado atual do simulador
 //void simulador_exibir_estado(Simulador *sim);
 
-void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina);
+int algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina);
 
 #endif

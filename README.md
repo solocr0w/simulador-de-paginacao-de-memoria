@@ -19,4 +19,8 @@ Programa é inicializado
             Incializa os parametros da struc
 
         Inicia o loop do simulador
+            Criar Processos
+            Aloca processo em memoria
+            
+
         

@@ -57,7 +57,7 @@ void simulador_destruir(Simulador *sim) {
 //03. Adiciona a nova página.
 //04. Atualiza a tabela.
 */
-void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
+int algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
 
     int frame_escolhido = -1; 
 
@@ -96,27 +96,7 @@ void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
             break;
     }
 
-    //Remove a antiga -> que ocupa o frame antes de ser atualizado
-    removerFrame(sim, frame_escolhido);
-
-    //Atualiza frame
-    Frame *novo_frame = sim->memoria->frames[frame_escolhido];
-    novo_frame->pid = pid;
-    novo_frame->num_pagina = num_pagina;
-    novo_frame->referenciada = true;
-    novo_frame->modificada = false;
-    novo_frame->tempo_carga = sim->tempo_sistema;
-
-    //Atualiza tabela
-    Processo *proc = sim->processos[pid];
-
-    Pagina *pagina = &proc->tabela->paginas[num_pagina];
-    pagina->presente = true;
-    pagina->frame = frame_escolhido;
-    pagina->referenciada = true;
-    pagina->modificada = false;
-    pagina->tempo_carga = sim->tempo_sistema;
-    pagina->ultimo_acesso = sim->tempo_sistema;
+    return frame_escolhido;
 }
 
 void simulador_exibir_estatisticas(Simulador *sim) {

@@ -48,9 +48,70 @@ void memoria_destruir(MemoriaFisica *mem) {
     }
 }
 
+// Aloca uma página em um frame específico, mesmo que ja esteja ocupado (retorna 0 se sucesso, -1 se falha)
+int memoria_alocar_frame_ocupado(Simulador *sim, int pid, int num_pagina, int frame){
+    if (!sim || !sim->memoria || frame < 0 || frame >= sim->memoria->num_frames) {
+        fprintf(stderr, "Memória física não inicializada ou frame inválido.\n");
+        return -1;
+    }
+
+    removerFrame(sim, frame); // Remove o frame antes de alocar
+
+    // Aloca o frame com os dados do processo
+    sim->memoria->frames[frame].pid = pid;
+    sim->memoria->frames[frame].num_pagina = num_pagina;
+    sim->memoria->frames[frame].referenciada = false;
+    sim->memoria->frames[frame].modificada = false;
+    sim->memoria->frames[frame].tempo_carga = sim->tempo_sistema; // Atualiza o tempo de carga com o tempo do sistema
+
+    // Atualiza a tabela de páginas do processo
+    Processo *processo = sim->processos[pid];
+    tabela_paginas_atualizar_presente(processo->tabela, num_pagina, frame);
+
+    return 0; // Sucesso
+}
 
 // Aloca uma página em um frame livre (retorna nº do frame ou -1)
-int memoria_alocar_frame(MemoriaFisica *mem, int pid, int num_pagina);
+int memoria_alocar_frame_livre(Simulador *sim, int pid, int num_pagina){
+    if (!sim || !sim->memoria) {
+        fprintf(stderr, "Memória física não inicializada.\n");
+        return -1;
+    }
+
+    // Busca um frame livre
+    for (int i = 0; i < sim->memoria->num_frames; i++) {
+        if (sim->memoria->frames[i].pid == FRAME_INVALIDO) {
+            // Encontra um frame livre
+            sim->memoria->frames[i].pid = pid;
+            sim->memoria->frames[i].num_pagina = num_pagina;
+            sim->memoria->frames[i].referenciada = false;
+            sim->memoria->frames[i].modificada = false;
+            sim->memoria->frames[i].tempo_carga = 0; // Pode ser atualizado com o tempo do sistema
+
+            return i; // Retorna o índice do frame alocado
+        }
+    }
+
+    fprintf(stderr, "Nenhum frame livre encontrado.\n");
+    return -1; // Nenhum frame livre disponível
+}
+
+
+//Tenta alocar um frame livre, caso não consiga, utiliza o algoritimo de substituição e aloca um frame ocupado
+int memoria_alocar_frame(Simulador *sim, int pid, int num_pagina){
+    int frame = memoria_alocar_frame_livre(sim, pid, num_pagina);
+    
+    // Nenhum frame livre encontrado, tenta substituir
+    if (frame == -1) {
+
+        //Chama o algoritimo de substituição
+        int frame_escolhido = algoritimosSubstituicao(sim, pid, num_pagina);
+
+        //Aloca o frame escolhido na memoria fisica
+        frame = memoria_alocar_frame_ocupado(sim, pid, num_pagina, frame_escolhido);
+    }
+    return frame;
+}
 
 // Libera um frame específico
 void memoria_liberar_frame(MemoriaFisica *mem, int frame);
@@ -70,21 +131,8 @@ void removerFrame(Simulador *sim, int frame_id) {
     int pid_dono = frame->pid;
     int pagina_dona = frame->num_pagina;
 
-    // Busca o processo correspondente
-    for (int i = 0; i < sim->num_processos; i++) {
-        Processo *proc = sim->processos[i];
-        if (proc->pid == pid_dono) {
-            //atualiza as paginas
-            Pagina *pagina = &proc->tabela->paginas[pagina_dona];
-
-            pagina->presente = false;
-            pagina->frame = -1;
-            pagina->referenciada = false;
-            pagina->modificada = false;
-
-            break;
-        }
-    }
+    //Atualiza a tabela de páginas
+    tabela_paginas_atualizar_nao_presente(sim->processos[pid_dono]->tabela, pagina_dona);
 
     //Limpa o frame, removendo-o
     frame->pid = -1;

@@ -25,3 +25,26 @@ Processo* processo_criar(int pid, int tamanho, int tamanho_pagina){
     
     return processo;
 }
+
+//Aloca o processo dentro da memória física
+void processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_pagina) {
+
+    Processo *processo = sim->processos[pid];
+
+    if (!processo || !processo->tabela) {
+        fprintf(stderr, "Processo ou tabela de páginas inválidos.\n");
+        return;
+    }
+
+    // Aloca as páginas na memória física
+    for (int i = 0; i < processo->num_paginas; i++) {
+        Pagina *pagina = &processo->tabela->paginas[i];
+        pagina->frame = memoria_alocar_frame_livre(sim, pid, i);
+        pagina->presente = (pagina->frame != -1);
+        pagina->modificada = false;
+        pagina->referenciada = false;
+        pagina->tempo_carga = pagina->presente? sim->tempo_sistema :0; // Define o tempo de carga com o tempo do sistema ou 0 se não estiver presente
+        pagina->ultimo_acesso = pagina->presente? sim->tempo_sistema :0; // Define o último acesso com o tempo do sistema ou 0 se não estiver presente
+    }
+    
+}

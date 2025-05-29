@@ -23,6 +23,9 @@ Pagina* tabela_paginas_buscar(TabelaPaginas *tabela, int num_pagina);
 // Marca uma página como presente na memória física
 void tabela_paginas_atualizar_presente(TabelaPaginas *tabela, int num_pagina, int frame);
 
+// Marca uma página como não presente na memória física
+void tabela_paginas_atualizar_nao_presente(TabelaPaginas *tabela, int num_pagina);
+
 // Reseta os bits de referência (útil para algoritmos como Clock)
 void tabela_paginas_resetar_referencias(TabelaPaginas *tabela);
 

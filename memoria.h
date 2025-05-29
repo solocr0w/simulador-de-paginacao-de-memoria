@@ -2,6 +2,7 @@
 #define MEMORIA_H
 #include <stdbool.h>
 #include "processo.h"
+#include "simulador.h"
 
 
 #define FRAME_INVALIDO -1
@@ -26,7 +27,13 @@ MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int
 void memoria_destruir(MemoriaFisica *mem);
 
 // Aloca uma página em um frame livre (retorna nº do frame ou -1)
-int memoria_alocar_frame(MemoriaFisica *mem, int pid, int num_pagina);
+int memoria_alocar_frame_livre(Simulador *sim, int pid, int num_pagina);
+
+// Aloca uma página em um frame específico (retorna 0 se sucesso, -1 se falha)
+int memoria_alocar_frame_ocupado(Simulador *sim, int pid, int num_pagina, int frame);
+
+//Tenta alocar um frame livre, caso não consiga, utiliza o algoritimo de substituição e aloca um frame ocupado
+int memoria_alocar_frame(Simulador *sim, int pid, int num_pagina);
 
 // Libera um frame específico
 void memoria_liberar_frame(MemoriaFisica *mem, int frame);
