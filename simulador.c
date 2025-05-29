@@ -101,7 +101,6 @@ void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int
         pagina->presente = (pagina->frame != -1);
         pagina->modificada = false;
         pagina->referenciada = false;
-        pagina->tempo_carga = pagina->presente ? sim->tempo_sistema : 0; // Define o tempo de carga com o tempo do sistema ou 0 se não estiver presente
         pagina->ultimo_acesso = pagina->presente ? sim->tempo_sistema : 0; // Define o último acesso com o tempo do sistema ou 0 se não estiver presente
     }
     

@@ -13,13 +13,13 @@ typedef struct {
     int num_pagina;     // Número da página alocada neste frame
     bool referenciada;  // Bit R (para Clock/Second Chance)
     bool modificada;    // Bit M (para substituição)
-    int tempo_carga;    // Instante em que cada frame foi carregado (para FIFO)
 } Frame;
 
 typedef struct {
     Frame *frames;                     // Array de frames (cada frame armazena PID + nº página)
     int num_frames;                  // Número total de frames na memória
     int tempo_atual;                 // Relógio global da simulação (opcional, pode ser usado para FIFO)   
+    int ultimo_frame_removido;
 } MemoriaFisica;
 
 MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int numFrames);

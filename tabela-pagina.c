@@ -23,7 +23,6 @@ TabelaPaginas* tabela_paginas_criar(int pid, int num_paginas){
         tabela->paginas[i].frame = -1; // Sem frame alocado
         tabela->paginas[i].presente = 0; // Inicialmente não está presente
         tabela->paginas[i].modificada = 0; // Inicialmente não modificada
-        tabela->paginas[i].tempo_carga = 0; // Inicialmente não carregada
         tabela->paginas[i].ultimo_acesso = 0; // Inicialmente não acessada
         tabela->paginas[i].referenciada = 0; // Inicialmente não referenciada
     }
@@ -68,5 +67,4 @@ void tabela_paginas_atualizar_nao_presente(TabelaPaginas *tabela, int num_pagina
     
     tabela->paginas[num_pagina].presente = 0; // Marca como não presente
     tabela->paginas[num_pagina].frame = -1; // Reseta o frame alocado
-    tabela->paginas[num_pagina].tempo_carga = 0; // Reseta o tempo de carga
 }

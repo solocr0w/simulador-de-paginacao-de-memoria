@@ -1,6 +1,8 @@
 # simulador-de-paginacao-de-memoria
 Repositorio para envio para o Lucas
 
+Instruções para compilação:
+gcc -o simulador memoria.c processo.c tabela-pagina.c simulador.c main.c -lm
 
 Descrição do funcionamento do programa
 

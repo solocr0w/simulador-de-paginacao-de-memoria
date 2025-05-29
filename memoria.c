@@ -29,7 +29,6 @@ MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int
     for (int i = 0; i < numFrames; i++) {
         memoria->frames[i].pid = FRAME_INVALIDO; // Inicializa com -1 (sem processo)
         memoria->frames[i].num_pagina = FRAME_INVALIDO; // Inicializa com -1 (sem página)
-        memoria->frames[i].tempo_carga = FRAME_INVALIDO; // Inicializa com -1 (nunca carregado)
         memoria->frames[i].referenciada = false; // Inicializa o bit R como 0
         memoria->frames[i].modificada = false; // Inicializa o bit M como 0
     }
@@ -55,7 +54,6 @@ int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Pro
     mem->frames[frame].num_pagina = num_pagina;
     mem->frames[frame].referenciada = false;
     mem->frames[frame].modificada = false;
-    mem->frames[frame].tempo_carga = mem->tempo_atual; // Atualiza o tempo de carga com o tempo do sistema
 
     tabela_paginas_atualizar_presente(processoNovo->tabela, num_pagina, frame);
 
@@ -80,8 +78,6 @@ int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina){
             mem->frames[i].num_pagina = num_pagina;
             mem->frames[i].referenciada = false;
             mem->frames[i].modificada = false;
-            mem->frames[i].tempo_carga = 0; // Pode ser atualizado com o tempo do sistema
-
             printf("Tempo t=%d: ", mem->tempo_atual);
             printf("[ALOCANDO PAGINA] Carregando Página %d do Processo %d no Frame %d!\n", num_pagina, pid, i);
 
@@ -104,15 +100,7 @@ int algoritimosSubstituicao(MemoriaFisica *mem, int pid, int num_pagina, int alg
         //First In First Out: funciona como uma fila, o primeiro a entrar é o primeiro a sair
         case 0 : //FIFO
             printf("Substituição FIFO selecionada.\n");
-            int mais_antigo = INT_MAX;
-                for (int i = 0; i < mem->num_frames; i++) {
-
-                    //compara o tempo de carga e, se for menor que o atual "mais antigo", atualiza
-                    if (mem->frames[i].tempo_carga < mais_antigo) {
-                        mais_antigo = mem->frames[i].tempo_carga;
-                        frame_escolhido = i;
-                    }
-                }
+            
             break;
 
         //Random: literalmente aleatorio
@@ -166,16 +154,14 @@ int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina){
 void memoria_exibir(MemoriaFisica *mem){
     // Representando a memória física como uma tabela
     printf("Estado atual da memória física:\n");
-    printf("Frame\tPID\tPágina\tReferenciada\tModificada\tTempo de Carga\n");
+    printf("Frame\tPID\tPágina\n");
     for (int i = 0; i < mem->num_frames; i++) {
         Frame *frame = &mem->frames[i];
-        printf("%d\t%d\t%d\t%s\t%s\t%d\n", 
+        printf("%d\t%d\t%d\n", 
                i, 
                frame->pid, 
-               frame->num_pagina, 
-               frame->referenciada ? "Sim" : "Não", 
-               frame->modificada ? "Sim" : "Não", 
-               frame->tempo_carga);
+               frame->num_pagina
+               );
     }
     printf("\n");
 
@@ -198,5 +184,4 @@ void removerFrame(MemoriaFisica *mem, Processo *processoDono, int frame_id) {
     frame->num_pagina = -1;
     frame->referenciada = false;
     frame->modificada = false;
-    frame->tempo_carga = 0;
 }
