@@ -1,4 +1,6 @@
 #include "simulador.h"
+#include "memoria.h"
+#include "processo.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h> 
@@ -49,22 +51,30 @@ void simulador_destruir(Simulador *sim) {
 
 // Destrói o processo (libera memória)
 void simulador_processo_destruir(Simulador *sim, Processo *processo){
-    if (!processo) {
+    if (!sim || !processo) {
+        fprintf(stderr, "Simulador ou processo inválido.\n");
         return;
     }
+    // Remover o processo da memória física
+    for (int i = 0; i < processo->num_paginas; i++) {
+        Pagina *pagina = &processo->tabela->paginas[i];
+        if (pagina->presente) {
+            removerFrame(sim->memoria, processo, pagina->frame); 
+        }
+    }
 
-    // Libera a tabela de páginas
+    // Libera a tabela de páginas do processo
     if (processo->tabela) {
         free(processo->tabela->paginas);
         free(processo->tabela);
     }
 
-    // Libera o processo
+    // Libera o próprio processo
     free(processo);
 
-    // Remove o processo do simulador
+    // Remove o processo do array de processos do simulador
     for (int i = 0; i < sim->num_processos; i++) {
-        if (sim->processos[i]->pid == processo->pid) {
+        if (sim->processos[i] == processo) {
             for (int j = i; j < sim->num_processos - 1; j++) {
                 sim->processos[j] = sim->processos[j + 1];
             }
@@ -72,22 +82,12 @@ void simulador_processo_destruir(Simulador *sim, Processo *processo){
             break;
         }
     }
-
-    //Desaloca a memória física ocupada pelo processo
-    for (int i = 0; i < processo->num_paginas; i++) {
-        Pagina *pagina = &processo->tabela->paginas[i];
-        if (pagina->presente) {
-            memoria_liberar_frame(sim, pagina->frame);
-            tabela_paginas_atualizar_nao_presente(processo->tabela, i);
-        }
-    }
-
 }
 
 //Aloca o processo dentro da memória física
 void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_pagina) {
 
-    Processo *processo = processo_busca(sim, pid);
+    Processo *processo = simulador_processo_busca(sim, pid);
 
     if (!processo || !processo->tabela) {
         fprintf(stderr, "Processo ou tabela de páginas inválidos.\n");
@@ -97,12 +97,12 @@ void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int
     // Aloca as páginas na memória física
     for (int i = 0; i < processo->num_paginas; i++) {
         Pagina *pagina = &processo->tabela->paginas[i];
-        pagina->frame = memoria_alocar_frame_livre(sim, pid, i);
+        pagina->frame = memoria_alocar_frame_livre(sim->memoria, pid, i); //TODO 
         pagina->presente = (pagina->frame != -1);
         pagina->modificada = false;
         pagina->referenciada = false;
-        pagina->tempo_carga = pagina->presente? sim->tempo_sistema :0; // Define o tempo de carga com o tempo do sistema ou 0 se não estiver presente
-        pagina->ultimo_acesso = pagina->presente? sim->tempo_sistema :0; // Define o último acesso com o tempo do sistema ou 0 se não estiver presente
+        pagina->tempo_carga = pagina->presente ? sim->tempo_sistema : 0; // Define o tempo de carga com o tempo do sistema ou 0 se não estiver presente
+        pagina->ultimo_acesso = pagina->presente ? sim->tempo_sistema : 0; // Define o último acesso com o tempo do sistema ou 0 se não estiver presente
     }
     
 }
@@ -159,35 +159,37 @@ void simulador_exibir_estatisticas(Simulador *sim) {
 
 
 void simulador_exibir_memoria(Simulador *sim) {
-    if (!sim || !sim->memoria) {
-        printf("Simulador ou memória não inicializados.\n");
-        return;
-    }
-    printf("\n===== ESTADO ATUAL DA MEMÓRIA =====\n");
-    //memoria_exibir(sim->memoria);
+    memoria_exibir(sim->memoria);
 }
 
-Processo* simulador_adicionar_processo(Simulador *sim){
+Processo *simulador_adicionar_processo(Simulador *sim)
+{
 
-    if (!sim) {
+    if (!sim)
+    {
         printf("Simulador não inicializado.\n");
         return NULL;
     }
 
-    //Encontra um tamanho de processo com até 10 páginas
+    // Encontra um tamanho de processo com até 10 páginas
     int tamanho_processo = (rand() % 10 + 1) * sim->tamanho_pagina; // Gera um tamanho entre 1 e 10 páginas
 
-    //Escolhendo o PID do novo processo
+    // Escolhendo o PID do novo processo
     int pid;
 
-    //Escolhe um PID único para o novo processo
-    if (sim->num_processos == 0) {
+    // Escolhe um PID único para o novo processo
+    if (sim->num_processos == 0)
+    {
         pid = 0; // Primeiro processo sempre tem PID 0
-    } else {
+    }
+    else
+    {
         // Encontra o próximo PID disponível
         pid = sim->num_processos;
-        for (int i = 0; i < sim->num_processos; i++) {
-            if (sim->processos[i]->pid == pid) {
+        for (int i = 0; i < sim->num_processos; i++)
+        {
+            if (sim->processos[i]->pid == pid)
+            {
                 pid++;
                 i = -1; // Reinicia a busca se o PID já estiver em uso
             }
@@ -196,23 +198,17 @@ Processo* simulador_adicionar_processo(Simulador *sim){
 
     // Cria um novo processo
     Processo *novo_processo = processo_criar(pid, tamanho_processo, sim->tamanho_pagina);
-    if (!novo_processo) {
+    if (!novo_processo)
+    {
         printf("Erro ao criar o processo.\n");
         return NULL;
     }
 
     // Adiciona o processo ao array de processos
-        sim->processos = realloc(sim->processos, sizeof(Processo*) * (sim->num_processos + 1));
-        if (!sim->processos) {
-            printf("Erro ao alocar memória para o array de processos.\n");
-            processo_destruir(novo_processo);
-            return NULL;
-        }    
-    
-    
+    sim->processos = realloc(sim->processos, sizeof(Processo *) * (sim->num_processos + 1));
     sim->processos[sim->num_processos] = novo_processo;
     sim->num_processos++;
-    
+
     return novo_processo;
 }
 
@@ -223,7 +219,7 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
         return -1;
     }
 
-    Processo *processo = processo_busca(sim, pid);
+    Processo *processo = simulador_processo_busca(sim, pid);
     if (!processo) {
         printf("Processo com PID %d não encontrado.\n", pid);
         return -1;
@@ -290,7 +286,8 @@ void loopSimulador(Simulador *sim) {
         // Exibe o estado atual da memória física
         simulador_exibir_memoria(sim);
 
-        sim->tempo_sistema++; // Incrementa o tempo do sistema a cada iteração
+        sim->tempo_sistema++;
+        sim->memoria->tempo_atual++; 
     }
 
     // Exibe as estatísticas da simulação

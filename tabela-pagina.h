@@ -2,7 +2,8 @@
 #define TABELA_PAGINAS_H
 
 #include "pagina.h"
-
+// TODO update tempo da memoria
+// TODO verificar criação das páginas dos processos
 typedef struct {
 
     Pagina *paginas;      // Array de páginas

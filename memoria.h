@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include "processo.h"
+#include "simulador.h"
 #include <limits.h>
 
 
@@ -33,9 +34,6 @@ int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Pro
 
 //Tenta alocar um frame livre, caso não consiga, utiliza o forame escolhido o frame mesmo ocupado
 int memoria_alocar_frame(MemoriaFisica *mem, Processo* ProcessoNovo, Processo* ProcessoAntigo, int frame_escolhido, int pid, int num_pagina);
-
-// Libera um frame específico
-void memoria_liberar_frame(MemoriaFisica *mem, int frame);
 
 // Busca um frame que contém a página (pid, num_pagina) (retorna -1 se não encontrado)
 int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);

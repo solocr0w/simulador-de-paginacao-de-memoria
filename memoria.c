@@ -60,7 +60,7 @@ int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Pro
     tabela_paginas_atualizar_presente(processoNovo->tabela, num_pagina, frame);
 
     printf("Tempo t=%d: ", mem->tempo_atual);
-    printf("[SUBSTITUIÇÃO] Substituindo Página %d do Processo %d no Frame %d pela Página %d do Processo %d!\n", num_pagina, pid, frame, num_pagina);
+    //TODO: printf("[SUBSTITUIÇÃO] Substituindo Página %d do Processo %d no Frame %d pela Página %d do Processo %d!\n", num_pagina, pid, frame, num_pagina);
 
     return 0; // Sucesso
 }
@@ -148,8 +148,6 @@ int memoria_alocar_frame(MemoriaFisica *mem, Processo* ProcessoNovo, Processo* P
     return frame;
 }
 
-// Libera um frame específico
-void memoria_liberar_frame(MemoriaFisica *mem, int frame);
 
 // Busca um frame que contém a página (pid, num_pagina) (retorna -1 se não encontrado)
 int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina){
@@ -165,7 +163,23 @@ int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina){
 }
 
 // Exibe o estado atual da memória física (para debug/simulação)
-void memoria_exibir(MemoriaFisica *mem);
+void memoria_exibir(MemoriaFisica *mem){
+    // Representando a memória física como uma tabela
+    printf("Estado atual da memória física:\n");
+    printf("Frame\tPID\tPágina\tReferenciada\tModificada\tTempo de Carga\n");
+    for (int i = 0; i < mem->num_frames; i++) {
+        Frame *frame = &mem->frames[i];
+        printf("%d\t%d\t%d\t%s\t%s\t%d\n", 
+               i, 
+               frame->pid, 
+               frame->num_pagina, 
+               frame->referenciada ? "Sim" : "Não", 
+               frame->modificada ? "Sim" : "Não", 
+               frame->tempo_carga);
+    }
+    printf("\n");
+
+}
 
 void removerFrame(MemoriaFisica *mem, Processo *processoDono, int frame_id) {
 
