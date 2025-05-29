@@ -25,12 +25,22 @@ int lerInteiro(const char* prompt) {
 
 
 void novaSimulacao() {
-    int tamanhoPagina, tamanhoMemoria, numFrames, algoritmoNum;
-    
+    int tamanhoPagina, tamanhoMemoria, numFrames, algoritmoNum, totalProcessos, tempo_total_sistema;
     printf("\n===== SIMULADOR DE PAGINAÇÃO =====\n");
     
     tamanhoPagina = lerInteiro("Digite o tamanho da página em bytes: ");
     tamanhoMemoria = lerInteiro("Digite o tamanho da memória física em bytes: ");
+    tempo_total_sistema = lerInteiro("Digite o tempo total do sistema (em ciclos): ");
+    totalProcessos = lerInteiro("Digite o número total de processos: ");
+    int *tamanhoProcessos = malloc(totalProcessos * sizeof(int));
+    if (!tamanhoProcessos) {
+        fprintf(stderr, "Erro ao alocar memória para os tamanhos dos processos.\n");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < totalProcessos; i++) {
+        printf("Processo %d: ", i);
+        tamanhoProcessos[i] = lerInteiro("Digite o tamanho do processo em bytes: ");
+    }
     numFrames = tamanhoMemoria / tamanhoPagina;
     
     printf("Selecione o algoritmo de substituição:\n");
@@ -53,7 +63,9 @@ void novaSimulacao() {
             algoritmo = FIFO;
             break;
     }
-    loopSimulador(criarSimulador(tamanhoPagina, tamanhoMemoria, algoritmo, numFrames));
+
+    //
+    loopSimulador(criarSimulador(tamanhoPagina, tamanhoMemoria, algoritmo, numFrames, totalProcessos, tamanhoProcessos, tempo_total_sistema));
 }
 
 

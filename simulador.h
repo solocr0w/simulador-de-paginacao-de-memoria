@@ -29,13 +29,19 @@ typedef struct {
     int total_page_faults;           // Total de page faults ocorridos
 
     //tempo do sistema
+    int tempo_total_sistema; // Tempo total do sistema (para simulações de tempo)
     int tempo_sistema;
-} Simulador;
+
+    //Parametros dos processos
+    int total_processos; //Total de processos
+    int *tamanho_processos; // Array de tamanhos dos processos, para facilitar a criação de novos processos
+
+} Simulador; 
 
 
 // Funções principais
-Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames);
-   
+Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames, int total_processos, int *tamanho_processos, int tempo_total_sistema);
+
 // Input Listening para a simulação, onde será executado o menu de simulação
 void loopSimulador(Simulador *sim);
 
@@ -43,7 +49,7 @@ void loopSimulador(Simulador *sim);
 void simulador_destruir(Simulador *sim);
 
 // Adiciona um novo processo ao simulador
-Processo* simulador_adicionar_processo(Simulador *sim, int pid, int tamanho_processo);
+Processo* simulador_adicionar_processo(Simulador *sim);
 
 // Simula um acesso à memória virtual de um processo
 int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual);

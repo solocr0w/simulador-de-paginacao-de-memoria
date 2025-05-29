@@ -18,6 +18,9 @@ Processo* processo_criar(int pid, int tamanho, int tamanho_pagina);
 //Aloca o processo na memoria fisica
 void processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_pagina);
 
+//Busca por um processo pelo PID
+Processo* processo_busca(Simulador *sim, int pid);
+
 // Destrói o processo (libera memória)
 void processo_destruir(Processo *processo);
 

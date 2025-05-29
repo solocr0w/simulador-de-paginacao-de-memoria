@@ -26,10 +26,23 @@ Processo* processo_criar(int pid, int tamanho, int tamanho_pagina){
     return processo;
 }
 
+// Busca por um processo pelo PID
+Processo* processo_busca(Simulador *sim, int pid){
+    if (!sim || !sim->processos) {
+        return NULL;
+    }
+    for (int i = 0; i < sim->num_processos; i++) {
+        if (sim->processos[i]->pid == pid) {
+            return sim->processos[i];
+        }
+    }
+    return NULL;
+}
+
 //Aloca o processo dentro da memória física
 void processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_pagina) {
 
-    Processo *processo = sim->processos[pid];
+    Processo *processo = processo_busca(sim, pid);
 
     if (!processo || !processo->tabela) {
         fprintf(stderr, "Processo ou tabela de páginas inválidos.\n");

@@ -65,8 +65,11 @@ int memoria_alocar_frame_ocupado(Simulador *sim, int pid, int num_pagina, int fr
     sim->memoria->frames[frame].tempo_carga = sim->tempo_sistema; // Atualiza o tempo de carga com o tempo do sistema
 
     // Atualiza a tabela de páginas do processo
-    Processo *processo = sim->processos[pid];
+    Processo *processo = processo_busca(sim, pid);
     tabela_paginas_atualizar_presente(processo->tabela, num_pagina, frame);
+
+    printf("Tempo t=%d: ", sim->tempo_sistema);
+    printf("[SUBSTITUIÇÃO] Substituindo Página %d do Processo %d no Frame %d pela Página %d do Processo %d!\n", num_pagina, pid, frame, num_pagina);
 
     return 0; // Sucesso
 }
@@ -88,11 +91,13 @@ int memoria_alocar_frame_livre(Simulador *sim, int pid, int num_pagina){
             sim->memoria->frames[i].modificada = false;
             sim->memoria->frames[i].tempo_carga = 0; // Pode ser atualizado com o tempo do sistema
 
+            printf("Tempo t=%d: ", sim->tempo_sistema);
+            printf("[ALOCANDO PAGINA] Carregando Página %d do Processo %d no Frame %d!\n", num_pagina, pid, i);
+
             return i; // Retorna o índice do frame alocado
         }
     }
 
-    fprintf(stderr, "Nenhum frame livre encontrado.\n");
     return -1; // Nenhum frame livre disponível
 }
 
@@ -117,7 +122,19 @@ int memoria_alocar_frame(Simulador *sim, int pid, int num_pagina){
 void memoria_liberar_frame(MemoriaFisica *mem, int frame);
 
 // Busca um frame que contém a página (pid, num_pagina) (retorna -1 se não encontrado)
-int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);
+int memoria_buscar_frame(Simulador *sim, int pid, int num_pagina){
+  
+    MemoriaFisica *mem = sim->memoria;
+
+    for (int i = 0; i < mem->num_frames; i++) {
+        if (mem->frames[i].pid == pid && mem->frames[i].num_pagina == num_pagina) {
+
+            mem->frames[i].referenciada = true; // Marca como referenciada
+            return i; // Retorna o índice do frame encontrado
+        }
+    }
+    return -1; // Nenhum frame encontrado
+}
 
 // Exibe o estado atual da memória física (para debug/simulação)
 void memoria_exibir(MemoriaFisica *mem);
