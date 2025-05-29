@@ -216,7 +216,7 @@ Processo* simulador_adicionar_processo(Simulador *sim){
     return novo_processo;
 }
 
-
+//TODO: ARRUMAR O EXAGERO NA UTILIZAÇÃO DA SUBSTITUIÇÃO
 int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
     if (!sim || !sim->memoria) {
         printf("Simulador ou memória não inicializados.\n");
@@ -271,20 +271,14 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
 }
 
 void loopSimulador(Simulador *sim) {
-    if (!sim) {
-        printf("Simulador não inicializado.\n");
-        return;
+
+    for(int i = 0; i < sim->total_processos; i++) {
+        Processo *processo = simulador_adicionar_processo(sim);
     }
+
 
     while(sim->tempo_sistema < sim->tempo_total_sistema){
 
-        // Gerei esse filler mas na real aqui vai ficar a função de gerar processos
-        printf("Criando um novo processo...\n");
-    
-    Processo *novo_processo = simulador_adicionar_processo(sim);
-
-    if (!novo_processo)
-        printf("Erro ao criar o processo.\n");
 
         // Simula um acesso à memória virtual de um processo
         Processo *processo = sim->processos[rand() % sim->num_processos]; // Seleciona um processo aleatório
@@ -304,7 +298,6 @@ void loopSimulador(Simulador *sim) {
 
     // Destroi o simulador
     simulador_destruir(sim);
-
 };
 
 

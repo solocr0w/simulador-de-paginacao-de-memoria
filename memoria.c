@@ -47,10 +47,6 @@ void memoria_destruir(MemoriaFisica *mem) {
 
 // Aloca uma página em um frame específico, mesmo que ja esteja ocupado (retorna 0 se sucesso, -1 se falha)
 int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Processo *ProcessoAntigo,int pid, int num_pagina, int frame){
-    if (!mem || frame < 0 || frame >= mem->num_frames) {
-        fprintf(stderr, "Memória física não inicializada ou frame inválido.\n");
-        return -1;
-    }
 
     removerFrame(mem, ProcessoAntigo, frame); // Remove o processo do frame antes de alocar
 
