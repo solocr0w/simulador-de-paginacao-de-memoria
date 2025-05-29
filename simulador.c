@@ -21,18 +21,15 @@ Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, Algori
     sim->tamanho_memoria_fisica = tamanho_memoria_fisica;
     sim->algoritmo = algoritmoEscolhido;
     sim->memoria = memoria_criar(tamanho_memoria_fisica, tamanho_pagina, numFrames);
+
     if (!sim->memoria) {
         free(sim);
         fprintf(stderr, "Erro ao criar memória física.\n");
         return NULL;
     }
-    sim->processos = malloc(sizeof(Processo*) * numFrames);
-    if (!sim->processos) {
-        memoria_destruir(sim->memoria);
-        free(sim);
-        fprintf(stderr, "Erro ao alocar memória para os processos.\n");
-        return NULL;
-    }
+
+    //Não existe um array de processos, mas sim um ponteiro para ponteiro de processos
+    sim->processos = NULL;
     sim->num_processos = 0;
     sim->total_acessos = 0;
     sim->total_page_faults = 0;
@@ -102,7 +99,37 @@ void simulador_exibir_memoria(Simulador *sim) {
 
 void simulador_exibir_processos(Simulador *sim) {}
 
-Processo* simulador_adicionar_processo(Simulador *sim, int pid, int tamanho_processo) {}
+Processo* simulador_adicionar_processo(Simulador *sim, int tamanho_processo){
+
+    if (!sim) {
+        printf("Simulador não inicializado.\n");
+        return NULL;
+    }
+
+    //Escolhendo o PID do novo processo
+    int pid = sim->num_processos;
+
+    // Cria um novo processo
+    Processo *novo_processo = processo_criar(pid, tamanho_processo, sim->tamanho_pagina);
+    if (!novo_processo) {
+        printf("Erro ao criar o processo.\n");
+        return NULL;
+    }
+
+    // Adiciona o processo ao array de processos
+        sim->processos = realloc(sim->processos, sizeof(Processo*) * (sim->num_processos + 1));
+        if (!sim->processos) {
+            printf("Erro ao alocar memória para o array de processos.\n");
+            processo_destruir(novo_processo);
+            return NULL;
+        }    
+    
+    
+    sim->processos[sim->num_processos] = novo_processo;
+    sim->num_processos++;
+    
+    return novo_processo;
+}
 
 void loopSimulador(Simulador *sim) {
     if (!sim) {
@@ -135,9 +162,9 @@ void loopSimulador(Simulador *sim) {
                 scanf("%d", &pid);
                 printf("Digite o tamanho do processo em bytes: ");
                 scanf("%d", &tamanho_processo);
-                Processo *novo_processo = simulador_adicionar_processo(sim, pid, tamanho_processo);
+                Processo *novo_processo = simulador_adicionar_processo(sim, tamanho_processo);
                 if (novo_processo) {
-                    printf("Processo %d criado com sucesso!\n", pid);
+                    printf("Processo %d criado com sucesso!\n", novo_processo->pid);
                 } else {
                     printf("Erro ao criar o processo.\n");
                 }

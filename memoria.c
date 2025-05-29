@@ -9,36 +9,31 @@
 #define FRAME_INVALIDO -1
 
 // TODO: Desenvolver as funções de alocação, liberação e busca de frames
-
 MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int numFrames) {
+
     MemoriaFisica *memoria = malloc(sizeof(MemoriaFisica));
+
     if (!memoria) {
         fprintf(stderr, "Erro ao alocar memória para a memória física.\n");
         return NULL;
     }
+
     memoria->num_frames = numFrames;
     memoria->frames = calloc(sizeof(Frame), numFrames);
+    
     if (!memoria->frames) {
         free(memoria);
         fprintf(stderr, "Erro ao alocar memória para os frames.\n");
         return NULL;
     }
+
+    // Inicializa todos os frames
     for (int i = 0; i < numFrames; i++) {
-        memoria->frames[i].tempo_carga = -1; // Inicializa com -1 (nunca carregado)
-    }
-    for (int i = 0; i < numFrames; i++) {
-        memoria->frames[i].tempo_carga = -1; // Inicializa com -1 (nunca carregado)
-    }
-    for (int i = 0; i < numFrames; i++) {
-        memoria->frames[i] = FRAME_INVALIDO; // Inicializa todos os frames como inválidos
-    }
-    memoria->frames->referenciada = malloc(sizeof(bool) * numFrames);
-    for (int i = 0; i < numFrames; i++) {
-        memoria->frames[i].referenciada = false; // Inicializa todos os bits R como 0
-    }
-    memoria->frames->modificada = malloc(sizeof(bool) * numFrames);
-    for (int i = 0; i < numFrames; i++) {
-        memoria->frames[i].modificada = false; // Inicializa todos os bits M como 0
+        memoria->frames[i].pid = FRAME_INVALIDO; // Inicializa com -1 (sem processo)
+        memoria->frames[i].num_pagina = FRAME_INVALIDO; // Inicializa com -1 (sem página)
+        memoria->frames[i].tempo_carga = FRAME_INVALIDO; // Inicializa com -1 (nunca carregado)
+        memoria->frames[i].referenciada = false; // Inicializa o bit R como 0
+        memoria->frames[i].modificada = false; // Inicializa o bit M como 0
     }
 
     printf("Memória física criada com sucesso!\n");
