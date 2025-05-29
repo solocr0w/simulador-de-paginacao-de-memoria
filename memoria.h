@@ -7,21 +7,19 @@
 #define FRAME_INVALIDO -1
 
 typedef struct {
-    int tamanho_memoria;             // Tamanho total da memória física em bytes
-    int tamanho_pagina;              // Tamanho de cada página em bytes
-    int num_frames;                  // Número total de frames na memória
-    int *frames;                     // Array de frames (cada frame armazena PID + nº página)
-    int *tempo_carga;                // Instante em que cada frame foi carregado (para FIFO)
-    bool *referenciada;              // Bit R (para Clock/Second Chance)
-    bool *modificada;                // Bit M (para substituição)
-    int tempo_atual;                 // Relógio global da simulação 
+    Frame *frames;                     // Array de frames (cada frame armazena PID + nº página)
+    int num_frames;                  // Número total de frames na memória   
 } MemoriaFisica;
 
 typedef struct {
-    int pid;          // ID do processo dono do frame
-    int num_pagina;  // Número da página alocada neste frame
+    int pid;            // ID do processo dono do frame
+    int num_pagina;     // Número da página alocada neste frame
+    bool referenciada;  // Bit R (para Clock/Second Chance)
+    bool modificada;    // Bit M (para substituição)
+    int tempo_carga;    // Instante em que cada frame foi carregado (para FIFO)
 } Frame;
 
+void memoria_exibir(MemoriaFisica *mem);
 
 MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int numFrames);
 
@@ -37,6 +35,8 @@ void memoria_liberar_frame(MemoriaFisica *mem, int frame);
 int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);
 
 // Exibe o estado atual da memória física (para debug/simulação)
-void memoria_exibir(MemoriaFisica *mem);
+
+
+
 
 #endif

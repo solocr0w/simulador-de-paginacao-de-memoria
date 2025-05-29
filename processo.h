@@ -4,6 +4,7 @@
 #include "tabela-pagina.h"
 
 typedef struct {
+
     int pid;                // Identificador do processo
     int tamanho;            // Tamanho total em bytes
     int num_paginas;        // Número de páginas (tamanho / tamanho_pagina)
@@ -14,8 +15,6 @@ typedef struct {
 // Cria um novo processo
 Processo* processo_criar(int pid, int tamanho, int tamanho_pagina);
 
-
-// TODO: Averiguar se precisamos manter mesmo essas funções
 // Destrói o processo (libera memória)
 void processo_destruir(Processo *processo);
 

@@ -13,27 +13,26 @@
 
 Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames) {
     Simulador *sim = malloc(sizeof(Simulador));
-    // if (!sim) {
-    //     fprintf(stderr, "Erro ao alocar memória para o simulador.\n");
-    //     return NULL;
-    // }
-
+    if (!sim) {
+        fprintf(stderr, "Erro ao alocar memória para o simulador.\n");
+        return NULL;
+    }
     sim->tamanho_pagina = tamanho_pagina;
     sim->tamanho_memoria_fisica = tamanho_memoria_fisica;
     sim->algoritmo = algoritmoEscolhido;
     sim->memoria = memoria_criar(tamanho_memoria_fisica, tamanho_pagina, numFrames);
-    // if (!sim->memoria) {
-    //     free(sim);
-    //     fprintf(stderr, "Erro ao criar memória física.\n");
-    //     return NULL;
-    // }
-    sim->processos = malloc(sizeof(Processo*) * numFrames); //TODO: REVER SE ISSO FAZ SENTIDO
-    // if (!sim->processos) {
-    //     memoria_destruir(sim->memoria);
-    //     free(sim);
-    //     fprintf(stderr, "Erro ao alocar memória para os processos.\n");
-    //     return NULL;
-    // }
+    if (!sim->memoria) {
+        free(sim);
+        fprintf(stderr, "Erro ao criar memória física.\n");
+        return NULL;
+    }
+    sim->processos = malloc(sizeof(Processo*) * numFrames);
+    if (!sim->processos) {
+        memoria_destruir(sim->memoria);
+        free(sim);
+        fprintf(stderr, "Erro ao alocar memória para os processos.\n");
+        return NULL;
+    }
     sim->num_processos = 0;
     sim->total_acessos = 0;
     sim->total_page_faults = 0;
@@ -53,6 +52,31 @@ void simulador_destruir(Simulador *sim) {
     }
 }
 
+void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
+
+    //TODO: NÃO ESQUECER DE REALIZAR A ALTERAÇÃO DE PAGINA CARREGADA DENTRO DA TABELA DE PAGINA DO PROCESSO QUE FOI RETIRADO
+
+
+    switch (sim->algoritmo) {
+        case FIFO:
+            // Implementar lógica de substituição FIFO
+            printf("Substituição FIFO selecionada.\n");
+            break;
+        case RANDOM:
+            // Implementar lógica de substituição aleatória
+            printf("Substituição aleatória selecionada.\n");
+            break;
+        case LRU:
+            // Implementar lógica de substituição LRU
+            printf("Substituição LRU selecionada.\n");
+            break;
+        case CLOCK:
+            // Implementar lógica de substituição Clock
+            printf("Substituição Clock selecionada.\n");
+            break;
+    }
+
+}
 
 void simulador_exibir_estatisticas(Simulador *sim) {
     if (!sim) {
@@ -66,6 +90,7 @@ void simulador_exibir_estatisticas(Simulador *sim) {
            sim->total_acessos > 0 ? (100.0 * sim->total_page_faults / sim->total_acessos) : 0.0);
 }
 
+
 void simulador_exibir_memoria(Simulador *sim) {
     if (!sim || !sim->memoria) {
         printf("Simulador ou memória não inicializados.\n");
@@ -77,7 +102,7 @@ void simulador_exibir_memoria(Simulador *sim) {
 
 void simulador_exibir_processos(Simulador *sim) {}
 
-int simulador_adicionar_processo(Simulador *sim, int pid, int tamanho_processo) {}
+Processo* simulador_adicionar_processo(Simulador *sim, int pid, int tamanho_processo) {}
 
 void loopSimulador(Simulador *sim) {
     if (!sim) {
@@ -110,7 +135,12 @@ void loopSimulador(Simulador *sim) {
                 scanf("%d", &pid);
                 printf("Digite o tamanho do processo em bytes: ");
                 scanf("%d", &tamanho_processo);
-                simulador_adicionar_processo(sim, pid, tamanho_processo);
+                Processo *novo_processo = simulador_adicionar_processo(sim, pid, tamanho_processo);
+                if (novo_processo) {
+                    printf("Processo %d criado com sucesso!\n", pid);
+                } else {
+                    printf("Erro ao criar o processo.\n");
+                }
                 break;
             case 2:
                 //memoria_exibir(sim->memoria);
