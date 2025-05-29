@@ -4,6 +4,8 @@
 #include "memoria.h"
 #include "processo.h"
 #include "tabela-pagina.h"
+#include "pagina.h"
+#include <limits.h> //INT_MAX
 
 //TODO: 
 // 1. Implementar as função simulador_adicionar_processo
@@ -49,29 +51,71 @@ void simulador_destruir(Simulador *sim) {
     }
 }
 
+/* --- ESTRUTURA DA FUNÇÃO ---
+//01. Identifica qual pagina deve ser removida com base no algoritmo de substituição selecionado.
+//02. Remove a página da memória física.
+//03. Adiciona a nova página.
+//04. Atualiza a tabela.
+*/
 void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
 
-    //TODO: NÃO ESQUECER DE REALIZAR A ALTERAÇÃO DE PAGINA CARREGADA DENTRO DA TABELA DE PAGINA DO PROCESSO QUE FOI RETIRADO
+    int frame_escolhido = -1; 
 
+    //onde que a gente verifica se tem frame livre? sera q nao vale implementar isso em memoria?
 
     switch (sim->algoritmo) {
+
+        //First In First Out: funciona como uma fila, o primeiro a entrar é o primeiro a sair
         case FIFO:
-            // Implementar lógica de substituição FIFO
             printf("Substituição FIFO selecionada.\n");
+            int mais_antigo = INT_MAX;
+                for (int i = 0; i < sim->memoria->num_frames; i++) {
+
+                    //compara o tempo de carga e, se for menor que o atual "mais antigo", atualiza
+                    if (sim->memoria->frames[i].tempo_carga < mais_antigo) {
+                        mais_antigo = sim->memoria->frames[i].tempo_carga;
+                        frame_escolhido = i;
+                    }
+                }
             break;
+
+        //Random: literalmente aleatorio
         case RANDOM:
-            // Implementar lógica de substituição aleatória
             printf("Substituição aleatória selecionada.\n");
+            frame_escolhido = rand() % sim->memoria->num_frames;
             break;
+
+        //Least Recently Used: o que não é mais usado há mais tempo (que tem o maior "ultimo acesso")
         case LRU:
-            // Implementar lógica de substituição LRU
             printf("Substituição LRU selecionada.\n");
             break;
+
+        //Clock: quase igual o LRU, mas usa um bit de referência para cada página
         case CLOCK:
-            // Implementar lógica de substituição Clock
             printf("Substituição Clock selecionada.\n");
             break;
     }
+
+    //Remove a antiga -> que ocupa o frame antes de ser atualizado
+    removerFrame(sim, frame_escolhido);
+
+    //Atualiza frame
+    Frame *novo_frame = sim->memoria->frames[frame_escolhido];
+    novo_frame->pid = pid;
+    novo_frame->num_pagina = num_pagina;
+    novo_frame->referenciada = true;
+    novo_frame->modificada = false;
+    novo_frame->tempo_carga = sim->tempo_sistema;
+
+    //Atualiza tabela
+    Processo *proc = sim->processos[pid];
+    Pagina *pagina = proc->tabela->paginas[num_pagina];
+    pagina->presente = true;
+    pagina->frame = frame_escolhido;
+    pagina->referenciada = true;
+    pagina->modificada = false;
+    pagina->tempo_carga = sim->tempo_sistema;
+    pagina->ultimo_acesso = sim->tempo_sistema;
 
 }
 
