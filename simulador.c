@@ -103,7 +103,7 @@ void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
     removerFrame(sim, frame_escolhido);
 
     //Atualiza frame
-    Frame *novo_frame = &sim->memoria->frames[frame_escolhido];
+    Frame *novo_frame = sim->memoria->frames[frame_escolhido];
     novo_frame->pid = pid;
     novo_frame->num_pagina = num_pagina;
     novo_frame->referenciada = true;
@@ -112,7 +112,7 @@ void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
 
     //Atualiza tabela
     Processo *proc = sim->processos[pid];
-    Pagina *pagina = &proc->tabela->paginas[num_pagina];
+    Pagina *pagina = proc->tabela->paginas[num_pagina];
     pagina->presente = true;
     pagina->frame = frame_escolhido;
     pagina->referenciada = true;
