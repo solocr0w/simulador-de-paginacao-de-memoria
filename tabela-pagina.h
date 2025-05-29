@@ -4,11 +4,9 @@
 #include "pagina.h"
 
 typedef struct {
-
     Pagina *paginas;      // Array de páginas
     int tamanho;          // Número de páginas na tabela
     int pid;              // PID do processo dono da tabela
-    
 } TabelaPaginas;
 
 // Cria uma nova tabela de páginas para um processo

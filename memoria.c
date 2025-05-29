@@ -25,21 +25,21 @@ MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int
         fprintf(stderr, "Erro ao alocar memória para os frames.\n");
         return NULL;
     }
-    memoria->tempo_carga = malloc(sizeof(int) * numFrames);
-    for (int i = 0; i < numFrames; i++) {
-        memoria->tempo_carga[i] = -1; // Inicializa com -1 (nunca carregado)
-    }
-    for (int i = 0; i < numFrames; i++) {
-        memoria->frames[i] = FRAME_INVALIDO; // Inicializa todos os frames como inválidos
-    }
-    memoria->referenciada = malloc(sizeof(bool) * numFrames);
-    for (int i = 0; i < numFrames; i++) {
-        memoria->referenciada[i] = false; // Inicializa todos os bits R como 0
-    }
-    memoria->modificada = malloc(sizeof(bool) * numFrames);
-    for (int i = 0; i < numFrames; i++) {
-        memoria->modificada[i] = false; // Inicializa todos os bits M como 0
-    }
+    //memoria->tempo_carga = malloc(sizeof(int) * numFrames);
+    // for (int i = 0; i < numFrames; i++) {
+    //     memoria->frames[i] = FRAME_INVALIDO; // Inicializa todos os frames como inválidos
+    // }
+    // for (int i = 0; i < numFrames; i++) {
+    //     memoria->tempo_carga[i] = -1; // Inicializa com -1 (nunca carregado)
+    // }
+    // memoria->referenciada = malloc(sizeof(bool) * numFrames);
+    // for (int i = 0; i < numFrames; i++) {
+    //     memoria->referenciada[i] = false; // Inicializa todos os bits R como 0
+    // }
+    // memoria->modificada = malloc(sizeof(bool) * numFrames);
+    // for (int i = 0; i < numFrames; i++) {
+    //     memoria->modificada[i] = false; // Inicializa todos os bits M como 0
+    // }
     
     printf("Memória física criada com sucesso!\n");
     return memoria;
