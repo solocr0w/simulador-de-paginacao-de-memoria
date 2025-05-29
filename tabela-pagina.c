@@ -1,8 +1,8 @@
 #include "tabela-pagina.h"
-#include "pagina.h"
-#include "memoria.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "pagina.h"
+#include "memoria.h"
 
 // Cria uma nova tabela de páginas para um processo
 TabelaPaginas* tabela_paginas_criar(int pid, int num_paginas){
@@ -33,6 +33,19 @@ TabelaPaginas* tabela_paginas_criar(int pid, int num_paginas){
     
     return tabela;
 }
+
+
+void tabela_paginas_remover_pagina(Processo *proc, int frame_removido) {
+        for (int j = 0; j < proc->num_paginas; j++) {
+            Pagina *pagina = &proc->tabela->paginas[j];
+            if (pagina->presente && pagina->frame == frame_removido) {
+                pagina->presente = false;
+                pagina->frame = -1;
+                return;
+            }
+        }
+}
+
 
 //Atualiza a o frame em uma tabela de pagina e marcar como presente
 void tabela_paginas_atualizar_presente(TabelaPaginas *tabela, int num_pagina, int frame){

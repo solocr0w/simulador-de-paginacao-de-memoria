@@ -1,11 +1,7 @@
+#include "simulador.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "simulador.h"
-#include "memoria.h"
-#include "processo.h"
-#include "tabela-pagina.h"
-#include "pagina.h"
-#include <limits.h> //INT_MAX
+#include <limits.h> 
 
 
 Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, AlgoritmoSubstituicao algoritmoEscolhido, int numFrames, int total_processos, int *tamanho_processos, int tempo_total_sistema) {
@@ -51,53 +47,87 @@ void simulador_destruir(Simulador *sim) {
     }
 }
 
+// Destrói o processo (libera memória)
+void simulador_processo_destruir(Simulador *sim, Processo *processo){
+    if (!processo) {
+        return;
+    }
+
+    // Libera a tabela de páginas
+    if (processo->tabela) {
+        free(processo->tabela->paginas);
+        free(processo->tabela);
+    }
+
+    // Libera o processo
+    free(processo);
+
+    // Remove o processo do simulador
+    for (int i = 0; i < sim->num_processos; i++) {
+        if (sim->processos[i]->pid == processo->pid) {
+            for (int j = i; j < sim->num_processos - 1; j++) {
+                sim->processos[j] = sim->processos[j + 1];
+            }
+            sim->num_processos--;
+            break;
+        }
+    }
+
+    //Desaloca a memória física ocupada pelo processo
+    for (int i = 0; i < processo->num_paginas; i++) {
+        Pagina *pagina = &processo->tabela->paginas[i];
+        if (pagina->presente) {
+            memoria_liberar_frame(sim, pagina->frame);
+            tabela_paginas_atualizar_nao_presente(processo->tabela, i);
+        }
+    }
+
+}
+
+//Aloca o processo dentro da memória física
+void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_pagina) {
+
+    Processo *processo = processo_busca(sim, pid);
+
+    if (!processo || !processo->tabela) {
+        fprintf(stderr, "Processo ou tabela de páginas inválidos.\n");
+        return;
+    }
+
+    // Aloca as páginas na memória física
+    for (int i = 0; i < processo->num_paginas; i++) {
+        Pagina *pagina = &processo->tabela->paginas[i];
+        pagina->frame = memoria_alocar_frame_livre(sim, pid, i);
+        pagina->presente = (pagina->frame != -1);
+        pagina->modificada = false;
+        pagina->referenciada = false;
+        pagina->tempo_carga = pagina->presente? sim->tempo_sistema :0; // Define o tempo de carga com o tempo do sistema ou 0 se não estiver presente
+        pagina->ultimo_acesso = pagina->presente? sim->tempo_sistema :0; // Define o último acesso com o tempo do sistema ou 0 se não estiver presente
+    }
+    
+}
+
+
+// Busca por um processo pelo PID
+Processo* simulador_processo_busca(Simulador *sim, int pid){
+    if (!sim || !sim->processos) {
+        return NULL;
+    }
+    for (int i = 0; i < sim->num_processos; i++) {
+        if (sim->processos[i]->pid == pid) {
+            return sim->processos[i];
+        }
+    }
+    return NULL;
+}
+
 /* --- ESTRUTURA DA FUNÇÃO ---
 //01. Identifica qual pagina deve ser removida com base no algoritmo de substituição selecionado.
 //02. Remove a página da memória física.
 //03. Adiciona a nova página.
 //04. Atualiza a tabela.
 */
-int algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
 
-    int frame_escolhido = -1; 
-
-    //onde que a gente verifica se tem frame livre? sera q nao vale implementar isso em memoria?
-
-    switch (sim->algoritmo) {
-
-        //First In First Out: funciona como uma fila, o primeiro a entrar é o primeiro a sair
-        case FIFO:
-            printf("Substituição FIFO selecionada.\n");
-            int mais_antigo = INT_MAX;
-                for (int i = 0; i < sim->memoria->num_frames; i++) {
-
-                    //compara o tempo de carga e, se for menor que o atual "mais antigo", atualiza
-                    if (sim->memoria->frames[i].tempo_carga < mais_antigo) {
-                        mais_antigo = sim->memoria->frames[i].tempo_carga;
-                        frame_escolhido = i;
-                    }
-                }
-            break;
-
-        //Random: literalmente aleatorio
-        case RANDOM:
-            printf("Substituição aleatória selecionada.\n");
-            frame_escolhido = rand() % sim->memoria->num_frames;
-            break;
-
-        //Least Recently Used: o que não é mais usado há mais tempo (que tem o maior "ultimo acesso")
-        case LRU:
-            printf("Substituição LRU selecionada.\n");
-            break;
-
-        //Clock: quase igual o LRU, mas usa um bit de referência para cada página
-        case CLOCK:
-            printf("Substituição Clock selecionada.\n");
-            break;
-    }
-
-    return frame_escolhido;
-}
 
 void simulador_exibir_estatisticas(Simulador *sim) {
     if (!sim) {
@@ -170,6 +200,14 @@ Processo* simulador_adicionar_processo(Simulador *sim){
     return novo_processo;
 }
 
+
+//Busca o processo dentro do frame
+Processo* simulador_processo_frame(Simulador* sim, int frame){
+    
+}
+
+
+
 int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
     if (!sim || !sim->memoria) {
         printf("Simulador ou memória não inicializados.\n");
@@ -196,7 +234,11 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
         sim->total_page_faults++;
         
         // Aloca um frame para a página
-        frame = memoria_alocar_frame(sim, pid, num_pagina);
+        Processo *ProcessoNovo = simulador_processo_busca(sim, pid);
+        int frameEscolhido = algoritimosSubstituicao(sim->memoria, pid, num_pagina, sim->algoritmo);
+        Processo *Processo_antigo = simulador_processo_busca(sim, )
+        frame = memoria_alocar_frame(sim->memoria, ProcessoNovo, Process,pid, num_pagina);
+
         if (frame == -1) {
             printf("Erro ao alocar frame para o processo %d.\n", pid);
             return -1; // Falha ao alocar frame

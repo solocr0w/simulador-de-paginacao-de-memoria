@@ -45,7 +45,19 @@ Simulador* criarSimulador(int tamanho_pagina, int tamanho_memoria_fisica, Algori
 // Input Listening para a simulação, onde será executado o menu de simulação
 void loopSimulador(Simulador *sim);
 
+//Busca por um processo pelo PID
+Processo* simulador_processo_busca(Simulador *sim, int pid);
 
+//Busca o processo dentro do frame
+Processo* simulador_processo_frame(Simulador* sim, int frame);
+
+// Destrói o processo (libera memória)
+void simulador_processo_destruir(Simulador *sim, Processo *processo);
+
+//Aloca o processo na memoria fisica
+void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_pagina);
+
+// Destroi o simulador e libera a memória alocada
 void simulador_destruir(Simulador *sim);
 
 // Adiciona um novo processo ao simulador
@@ -57,6 +69,6 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual);
 // Exibe o estado atual do simulador
 //void simulador_exibir_estado(Simulador *sim);
 
-int algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina);
+
 
 #endif

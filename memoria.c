@@ -1,9 +1,6 @@
+#include "memoria.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "memoria.h"
-#include "tabela-pagina.h"
-#include "processo.h"
-#include "simulador.h"
 #include <stdbool.h>
 
 
@@ -49,49 +46,47 @@ void memoria_destruir(MemoriaFisica *mem) {
 }
 
 // Aloca uma página em um frame específico, mesmo que ja esteja ocupado (retorna 0 se sucesso, -1 se falha)
-int memoria_alocar_frame_ocupado(Simulador *sim, int pid, int num_pagina, int frame){
-    if (!sim || !sim->memoria || frame < 0 || frame >= sim->memoria->num_frames) {
+int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Processo *ProcessoAntigo,int pid, int num_pagina, int frame){
+    if (!mem || frame < 0 || frame >= mem->num_frames) {
         fprintf(stderr, "Memória física não inicializada ou frame inválido.\n");
         return -1;
     }
 
-    removerFrame(sim, frame); // Remove o frame antes de alocar
+    removerFrame(mem, ProcessoAntigo, frame); // Remove o processo do frame antes de alocar
 
     // Aloca o frame com os dados do processo
-    sim->memoria->frames[frame].pid = pid;
-    sim->memoria->frames[frame].num_pagina = num_pagina;
-    sim->memoria->frames[frame].referenciada = false;
-    sim->memoria->frames[frame].modificada = false;
-    sim->memoria->frames[frame].tempo_carga = sim->tempo_sistema; // Atualiza o tempo de carga com o tempo do sistema
+    mem->frames[frame].pid = pid;
+    mem->frames[frame].num_pagina = num_pagina;
+    mem->frames[frame].referenciada = false;
+    mem->frames[frame].modificada = false;
+    mem->frames[frame].tempo_carga = mem->tempo_atual; // Atualiza o tempo de carga com o tempo do sistema
 
-    // Atualiza a tabela de páginas do processo
-    Processo *processo = processo_busca(sim, pid);
-    tabela_paginas_atualizar_presente(processo->tabela, num_pagina, frame);
+    tabela_paginas_atualizar_presente(processoNovo->tabela, num_pagina, frame);
 
-    printf("Tempo t=%d: ", sim->tempo_sistema);
+    printf("Tempo t=%d: ", mem->tempo_atual);
     printf("[SUBSTITUIÇÃO] Substituindo Página %d do Processo %d no Frame %d pela Página %d do Processo %d!\n", num_pagina, pid, frame, num_pagina);
 
     return 0; // Sucesso
 }
 
 // Aloca uma página em um frame livre (retorna nº do frame ou -1)
-int memoria_alocar_frame_livre(Simulador *sim, int pid, int num_pagina){
-    if (!sim || !sim->memoria) {
+int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina){
+    if (!mem) {
         fprintf(stderr, "Memória física não inicializada.\n");
         return -1;
     }
 
     // Busca um frame livre
-    for (int i = 0; i < sim->memoria->num_frames; i++) {
-        if (sim->memoria->frames[i].pid == FRAME_INVALIDO) {
+    for (int i = 0; i < mem->num_frames; i++) {
+        if (mem->frames[i].pid == FRAME_INVALIDO) {
             // Encontra um frame livre
-            sim->memoria->frames[i].pid = pid;
-            sim->memoria->frames[i].num_pagina = num_pagina;
-            sim->memoria->frames[i].referenciada = false;
-            sim->memoria->frames[i].modificada = false;
-            sim->memoria->frames[i].tempo_carga = 0; // Pode ser atualizado com o tempo do sistema
+            mem->frames[i].pid = pid;
+            mem->frames[i].num_pagina = num_pagina;
+            mem->frames[i].referenciada = false;
+            mem->frames[i].modificada = false;
+            mem->frames[i].tempo_carga = 0; // Pode ser atualizado com o tempo do sistema
 
-            printf("Tempo t=%d: ", sim->tempo_sistema);
+            printf("Tempo t=%d: ", mem->tempo_atual);
             printf("[ALOCANDO PAGINA] Carregando Página %d do Processo %d no Frame %d!\n", num_pagina, pid, i);
 
             return i; // Retorna o índice do frame alocado
@@ -102,18 +97,57 @@ int memoria_alocar_frame_livre(Simulador *sim, int pid, int num_pagina){
 }
 
 
+int algoritimosSubstituicao(MemoriaFisica *mem, int pid, int num_pagina, int algoritimo){
+
+    int frame_escolhido = -1; 
+
+    //onde que a gente verifica se tem frame livre? sera q nao vale implementar isso em memoria?
+
+    switch (algoritimo) {
+
+        //First In First Out: funciona como uma fila, o primeiro a entrar é o primeiro a sair
+        case 0 : //FIFO
+            printf("Substituição FIFO selecionada.\n");
+            int mais_antigo = INT_MAX;
+                for (int i = 0; i < mem->num_frames; i++) {
+
+                    //compara o tempo de carga e, se for menor que o atual "mais antigo", atualiza
+                    if (mem->frames[i].tempo_carga < mais_antigo) {
+                        mais_antigo = mem->frames[i].tempo_carga;
+                        frame_escolhido = i;
+                    }
+                }
+            break;
+
+        //Random: literalmente aleatorio
+        case 1: //RANDOM
+            printf("Substituição aleatória selecionada.\n");
+            frame_escolhido = rand() % mem->num_frames;
+            break;
+
+        //Least Recently Used: o que não é mais usado há mais tempo (que tem o maior "ultimo acesso")
+        case 2: //LRU
+            printf("Substituição LRU selecionada.\n");
+            break;
+
+        //Clock: quase igual o LRU, mas usa um bit de referência para cada página
+        case 3: //CLOCK
+            printf("Substituição Clock selecionada.\n");
+            break;
+    }
+
+    return frame_escolhido;
+}
+
 //Tenta alocar um frame livre, caso não consiga, utiliza o algoritimo de substituição e aloca um frame ocupado
-int memoria_alocar_frame(Simulador *sim, int pid, int num_pagina){
-    int frame = memoria_alocar_frame_livre(sim, pid, num_pagina);
+int memoria_alocar_frame(MemoriaFisica *mem, Processo* ProcessoNovo, Processo* ProcessoAntigo, int frame_escolhido, int pid, int num_pagina){
+    int frame = memoria_alocar_frame_livre(mem, pid, num_pagina);
     
     // Nenhum frame livre encontrado, tenta substituir
     if (frame == -1) {
 
-        //Chama o algoritimo de substituição
-        int frame_escolhido = algoritimosSubstituicao(sim, pid, num_pagina);
-
         //Aloca o frame escolhido na memoria fisica
-        frame = memoria_alocar_frame_ocupado(sim, pid, num_pagina, frame_escolhido);
+        frame = memoria_alocar_frame_ocupado(mem, ProcessoNovo, ProcessoAntigo, pid, num_pagina, frame_escolhido);
     }
     return frame;
 }
@@ -122,9 +156,7 @@ int memoria_alocar_frame(Simulador *sim, int pid, int num_pagina){
 void memoria_liberar_frame(MemoriaFisica *mem, int frame);
 
 // Busca um frame que contém a página (pid, num_pagina) (retorna -1 se não encontrado)
-int memoria_buscar_frame(Simulador *sim, int pid, int num_pagina){
-  
-    MemoriaFisica *mem = sim->memoria;
+int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina){
 
     for (int i = 0; i < mem->num_frames; i++) {
         if (mem->frames[i].pid == pid && mem->frames[i].num_pagina == num_pagina) {
@@ -139,9 +171,9 @@ int memoria_buscar_frame(Simulador *sim, int pid, int num_pagina){
 // Exibe o estado atual da memória física (para debug/simulação)
 void memoria_exibir(MemoriaFisica *mem);
 
-void removerFrame(Simulador *sim, int frame_id) {
+void removerFrame(MemoriaFisica *mem, Processo *processoDono, int frame_id) {
 
-    Frame *frame = &sim->memoria->frames[frame_id];
+    Frame *frame = &mem->frames[frame_id];
     
     // Se o frame já estiver livre, nada a fazer
     if (frame->pid == -1) return;
@@ -149,7 +181,7 @@ void removerFrame(Simulador *sim, int frame_id) {
     int pagina_dona = frame->num_pagina;
 
     //Atualiza a tabela de páginas
-    tabela_paginas_atualizar_nao_presente(sim->processos[pid_dono]->tabela, pagina_dona);
+    tabela_paginas_atualizar_nao_presente(processoDono->tabela, pagina_dona);
 
     //Limpa o frame, removendo-o
     frame->pid = -1;
