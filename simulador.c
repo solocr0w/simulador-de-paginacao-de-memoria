@@ -52,6 +52,31 @@ void simulador_destruir(Simulador *sim) {
     }
 }
 
+void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina){
+
+    //TODO: NÃO ESQUECER DE REALIZAR A ALTERAÇÃO DE PAGINA CARREGADA DENTRO DA TABELA DE PAGINA DO PROCESSO QUE FOI RETIRADO
+
+
+    switch (sim->algoritmo) {
+        case FIFO:
+            // Implementar lógica de substituição FIFO
+            printf("Substituição FIFO selecionada.\n");
+            break;
+        case RANDOM:
+            // Implementar lógica de substituição aleatória
+            printf("Substituição aleatória selecionada.\n");
+            break;
+        case LRU:
+            // Implementar lógica de substituição LRU
+            printf("Substituição LRU selecionada.\n");
+            break;
+        case CLOCK:
+            // Implementar lógica de substituição Clock
+            printf("Substituição Clock selecionada.\n");
+            break;
+    }
+
+}
 
 void simulador_exibir_estatisticas(Simulador *sim) {
     if (!sim) {

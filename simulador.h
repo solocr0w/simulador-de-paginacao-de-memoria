@@ -28,6 +28,8 @@ typedef struct {
     int total_acessos;               // Total de acessos à memória simulados
     int total_page_faults;           // Total de page faults ocorridos
 
+    //tempo do sistema
+    int tempo_sistema;
 } Simulador;
 
 
@@ -48,5 +50,7 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual);
 
 // Exibe o estado atual do simulador
 //void simulador_exibir_estado(Simulador *sim);
+
+void algoritimosSubstituicao(Simulador *sim, int pid, int num_pagina);
 
 #endif
