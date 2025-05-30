@@ -50,9 +50,6 @@ Processo* simulador_processo_busca(Simulador *sim, int pid);
 //Busca o processo dentro do frame
 Processo* simulador_processo_frame(Simulador* sim, int frame);
 
-// Destrói o processo (libera memória)
-void simulador_processo_destruir(Simulador *sim, Processo *processo);
-
 //Aloca o processo na memoria fisica
 void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int tamanho_pagina);
 
@@ -65,8 +62,6 @@ Processo *simulador_adicionar_processo(Simulador *sim, int tamanho_processo);
 // Simula um acesso à memória virtual de um processo
 int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual);
 
-// Exibe o estado atual do simulador
-//void simulador_exibir_estado(Simulador *sim);
 
 
 
