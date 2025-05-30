@@ -203,12 +203,13 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
         printf("\n");
 
         sim->memoria->frames[frame].contador_lru = 0;
+        sim->memoria->frames[frame].referenciada = true;
 
         processo->tabela->paginas[num_pagina].ultimo_acesso = sim->tempo_sistema;
     }
 
     sim->total_acessos++;
-    return 0; 
+    return 0;
 }
 
 void loopSimulador(Simulador *sim) {
@@ -230,6 +231,7 @@ void loopSimulador(Simulador *sim) {
         simulador_exibir_memoria(sim);
 
         memoria_atualizar_contador_lru(sim->memoria);
+
         sim->tempo_sistema++;
         sim->memoria->tempo_atual++; 
     }

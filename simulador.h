@@ -9,13 +9,11 @@ typedef enum {
     RANDOM,
     LRU,
     CLOCK
-
 } AlgoritmoSubstituicao;
 
 
 // Estrutura principal do simulador
 typedef struct {
-    //Vou tirar isso por enquanto para nn atrapalhar :int tempo_atual;                 // Relógio global da simulação
     int tamanho_pagina;              // Tamanho da página em bytes (ex: 4096)
     int tamanho_memoria_fisica;      // Tamanho total da memória física em bytes
     AlgoritmoSubstituicao algoritmo; // Algoritmo de substituição selecionado
@@ -61,8 +59,6 @@ Processo *simulador_adicionar_processo(Simulador *sim, int tamanho_processo);
 
 // Simula um acesso à memória virtual de um processo
 int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual);
-
-
 
 
 #endif

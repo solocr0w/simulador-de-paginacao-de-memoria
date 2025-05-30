@@ -132,7 +132,33 @@ int algoritimosSubstituicao(MemoriaFisica *mem, int pid, int num_pagina, int alg
 
         //Clock: quase igual o LRU, mas usa um bit de referência para cada página
         case 3: //CLOCK;
+            // Procura o primeiro frame com bit de referência 0 e o escolhe para substituição
+            for (int i = 0; i < mem->num_frames; i++) {
+                if (mem->frames[i].referenciada == false) {
+                    frame_escolhido = i;
+                    break;
+                }
+            }
+            
+            // Se não encontrar nenhum frame com bit de referência 0, escolhe o primeiro frame e reseta o bit de referência
+            if (frame_escolhido == -1) {
+                for (int i = 0; i < mem->num_frames; i++) {
+                    if (mem->frames[i].referenciada == true) {
+                        frame_escolhido = i;
+                        mem->frames[i].referenciada = false;
+                        break;
+                    }
+                }
+            }
+            
+            // Reseta todos os demais Bits de Referência para 0
+            for (int i = 0; i < mem->num_frames; i++) {
+                if (i != frame_escolhido) {
+                    mem->frames[i].referenciada = false;
+                }
+            }
             break;
+
     }
 
     return frame_escolhido;

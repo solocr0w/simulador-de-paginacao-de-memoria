@@ -26,4 +26,4 @@ A arquitetura do projeto é dividida em múltiplos módulos:
 - **Modularização Clara**: o código é dividido em arquivos/módulos bem definidos, cada um responsável por uma parte do sistema.
 - **Flexibilidade de Algoritmos**: o simulador permite alternar facilmente entre os algoritmos de substituição.
 
-
+Obs: para compilação: gcc -o simulador memoria.c processo.c tabela-pagina.c simulador.c main.c
