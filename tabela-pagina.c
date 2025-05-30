@@ -51,11 +51,6 @@ void tabela_paginas_atualizar_presente(TabelaPaginas *tabela, int num_pagina, in
 // Marca uma página como não presente na memória física
 void tabela_paginas_atualizar_nao_presente(TabelaPaginas *tabela, int num_pagina){
     
-    if (num_pagina < 0 || num_pagina >= tabela->tamanho) {
-        fprintf(stderr, "Número de página inválido: %d\n", num_pagina);
-        return;
-    }
-    
     tabela->paginas[num_pagina].presente = 0; // Marca como não presente
     tabela->paginas[num_pagina].frame = -1; // Reseta o frame alocado
 }

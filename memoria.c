@@ -26,6 +26,7 @@ MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int
         memoria->frames[i].num_pagina = FRAME_INVALIDO; // Inicializa com -1 (sem página)
         memoria->frames[i].referenciada = false; // Inicializa o bit R como 0
         memoria->frames[i].modificada = false; // Inicializa o bit M como 0
+        memoria->frames[i].processo = NULL; // Inicializa o ponteiro do processo como NULL
     }
 
     return memoria;
@@ -48,6 +49,7 @@ int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Pro
     mem->frames[frame].num_pagina = num_pagina;
     mem->frames[frame].referenciada = false;
     mem->frames[frame].modificada = false;
+    mem->frames[frame].processo = processoNovo; // Atualiza o ponteiro do processo
 
     tabela_paginas_atualizar_presente(processoNovo->tabela, num_pagina, frame);
 
@@ -58,7 +60,7 @@ int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Pro
 }
 
 // Aloca uma página em um frame livre (retorna nº do frame ou -1)
-int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina){
+int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina, Processo *processoNovo){
     if (!mem) {
         fprintf(stderr, "Memória física não inicializada.\n");
         return -1;
@@ -72,6 +74,7 @@ int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina){
             mem->frames[i].num_pagina = num_pagina;
             mem->frames[i].referenciada = false;
             mem->frames[i].modificada = false;
+            mem->frames[i].processo = processoNovo; // Atualiza o ponteiro do processo
             printf("Tempo t=%d: ", mem->tempo_atual);
             printf("[ALOCANDO PAGINA] Carregando Página %d do Processo %d no Frame %d!\n", num_pagina, pid, i);
 
@@ -115,14 +118,16 @@ int algoritimosSubstituicao(MemoriaFisica *mem, int pid, int num_pagina, int alg
 
 //Tenta alocar um frame livre, caso não consiga, utiliza o algoritimo de substituição e aloca um frame ocupado
 int memoria_alocar_frame(MemoriaFisica *mem, Processo* ProcessoNovo, Processo* ProcessoAntigo, int frame_escolhido, int pid, int num_pagina){
-    int frame = memoria_alocar_frame_livre(mem, pid, num_pagina);
+    int frame = memoria_alocar_frame_livre(mem, pid, num_pagina, ProcessoNovo);
     
-    // Nenhum frame livre encontrado, tenta substituir
-    if (frame == -1) {
-
-        //Aloca o frame escolhido na memoria fisica
-        frame = memoria_alocar_frame_ocupado(mem, ProcessoNovo, ProcessoAntigo, pid, num_pagina, frame_escolhido);
+    // Atualiza a tabela de páginas se conseguiu alocar em frame livre
+    if (frame != -1) {
+        tabela_paginas_atualizar_presente(ProcessoNovo->tabela, num_pagina, frame);
+        return frame;
     }
+
+    // Nenhum frame livre encontrado, tenta substituir
+    frame = memoria_alocar_frame_ocupado(mem, ProcessoNovo, ProcessoAntigo, pid, num_pagina, frame_escolhido);
     return frame;
 }
 

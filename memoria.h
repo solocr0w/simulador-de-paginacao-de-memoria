@@ -13,6 +13,7 @@ typedef struct {
     int num_pagina;     // Número da página alocada neste frame
     bool referenciada;  // Bit R (para Clock/Second Chance)
     bool modificada;    // Bit M (para substituição)
+    Processo *processo; // Ponteiro para o processo dono do frame (opcional, pode ser usado para LRU)
 } Frame;
 
 typedef struct {
@@ -27,7 +28,7 @@ MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int
 void memoria_destruir(MemoriaFisica *mem);
 
 // Aloca uma página em um frame livre (retorna nº do frame ou -1)
-int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina);
+int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina, Processo *processoNovo);
 
 // Aloca uma página em um frame específico (retorna 0 se sucesso, -1 se falha)
 int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Processo *ProcessoAntigo,int pid, int num_pagina, int frame);

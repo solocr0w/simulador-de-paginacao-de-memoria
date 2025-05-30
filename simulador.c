@@ -97,7 +97,7 @@ void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int
     // Aloca as páginas na memória física
     for (int i = 0; i < processo->num_paginas; i++) {
         Pagina *pagina = &processo->tabela->paginas[i];
-        pagina->frame = memoria_alocar_frame_livre(sim->memoria, pid, i); //TODO 
+        pagina->frame = memoria_alocar_frame_livre(sim->memoria, pid, i, processo); // Corrigido
         pagina->presente = (pagina->frame != -1);
         pagina->modificada = false;
         pagina->referenciada = false;
@@ -107,19 +107,8 @@ void simulador_processo_alocar_memoria(Simulador *sim, int pid, int tamanho, int
 }
 
 Processo* simulador_processo_frame(Simulador* sim, int frame){
-    if (!sim || !sim->processos) {
-        return NULL;
-    }
-    for (int i = 0; i < sim->num_processos; i++) {
-        Processo *proc = sim->processos[i];
-        for (int j = 0; j < proc->num_paginas; j++) {
-            Pagina *pagina = &proc->tabela->paginas[j];
-            if (pagina->presente && pagina->frame == frame) {
-                return proc; // Retorna o processo que possui a página no frame
-            }
-        }
-    }
-    return NULL; // Nenhum processo encontrado com a página no frame especificado
+
+    return sim->memoria->frames[frame].processo;
 }
 
 
