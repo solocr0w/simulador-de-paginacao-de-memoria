@@ -6,7 +6,6 @@
 
 #define FRAME_INVALIDO -1
 
-// TODO: Desenvolver as funções de alocação, liberação e busca de frames
 MemoriaFisica* memoria_criar(int tamanho_memoria_fisica, int tamanho_pagina, int numFrames) {
 
     MemoriaFisica *memoria = malloc(sizeof(MemoriaFisica));
@@ -54,7 +53,6 @@ int memoria_alocar_frame_ocupado(MemoriaFisica *mem, Processo *processoNovo, Pro
     tabela_paginas_atualizar_presente(processoNovo->tabela, num_pagina, frame);
 
     printf("Tempo t=%d: ", mem->tempo_atual);
-    //TODO: printf("[SUBSTITUIÇÃO] Substituindo Página %d do Processo %d no Frame %d pela Página %d do Processo %d!\n", num_pagina, pid, frame, num_pagina);
 
     return 0; // Sucesso
 }
@@ -104,7 +102,6 @@ int algoritimosSubstituicao(MemoriaFisica *mem, int pid, int num_pagina, int alg
     int frame_escolhido = -1; 
     int maior_contador = -1;
 
-    //onde que a gente verifica se tem frame livre? sera q nao vale implementar isso em memoria?
 
     switch (algoritimo) {
 
