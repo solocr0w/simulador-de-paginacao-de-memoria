@@ -246,6 +246,8 @@ int simulador_acessar_memoria(Simulador *sim, int pid, int endereco_virtual){
         printf("[PAGE HIT] Endereço virtual (P%d): %d -> Página: %d -> Frame: %d -> Endereço físico: %d\n", pid, endereco_virtual, num_pagina, frame, endereco_fisico);
         printf("\n");
 
+        sim->memoria->frames[frame].contador_lru = 0;
+
         processo->tabela->paginas[num_pagina].ultimo_acesso = sim->tempo_sistema;
     }
 
@@ -273,6 +275,7 @@ void loopSimulador(Simulador *sim) {
         // Exibe o estado atual da memória física
         simulador_exibir_memoria(sim);
 
+        memoria_atualizar_contador_lru(sim->memoria); // Atualiza o contador LRU de todos os frames
         sim->tempo_sistema++;
         sim->memoria->tempo_atual++; 
     }

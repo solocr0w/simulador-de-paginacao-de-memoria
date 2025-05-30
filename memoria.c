@@ -86,9 +86,23 @@ int memoria_alocar_frame_livre(MemoriaFisica *mem, int pid, int num_pagina, Proc
 }
 
 
+int memoria_atualizar_contador_lru(MemoriaFisica *mem){
+    // Incrementa o contador LRU de todos os frames
+    for (int i = 0; i < mem->num_frames; i++) {
+        if (mem->frames[i].pid != FRAME_INVALIDO) {
+            mem->frames[i].contador_lru++;
+        }
+    }
+
+    return 0; // Sucesso
+}
+
+
+
 int algoritimosSubstituicao(MemoriaFisica *mem, int pid, int num_pagina, int algoritimo){
 
     int frame_escolhido = -1; 
+    int maior_contador = -1;
 
     //onde que a gente verifica se tem frame livre? sera q nao vale implementar isso em memoria?
 
@@ -106,6 +120,14 @@ int algoritimosSubstituicao(MemoriaFisica *mem, int pid, int num_pagina, int alg
 
         //Least Recently Used: o que não é mais usado há mais tempo (que tem o maior "ultimo acesso")
         case 2: //LRU
+
+            // Procura o frame com maior contador de LRU e o escolhe para substituição
+            for (int i = 0; i < mem->num_frames; i++) {
+                if (mem->frames[i].pid != FRAME_INVALIDO && mem->frames[i].contador_lru > maior_contador) {
+                    maior_contador = mem->frames[i].contador_lru;
+                    frame_escolhido = i; // Atualiza o frame escolhido
+                }
+            }
             break;
 
         //Clock: quase igual o LRU, mas usa um bit de referência para cada página

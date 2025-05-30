@@ -14,6 +14,7 @@ typedef struct {
     bool referenciada;  // Bit R (para Clock/Second Chance)
     bool modificada;    // Bit M (para substituição)
     Processo *processo; // Ponteiro para o processo dono do frame (opcional, pode ser usado para LRU)
+    int contador_lru; // Contador LRU (para LRU)
 } Frame;
 
 typedef struct {
@@ -41,6 +42,9 @@ int memoria_buscar_frame(MemoriaFisica *mem, int pid, int num_pagina);
 
 // Exibe o estado atual da memória física (para debug/simulação)
 void memoria_exibir(MemoriaFisica *mem);
+
+// Atualiza o contador LRU de todos os frames (para LRU)
+int memoria_atualizar_contador_lru(MemoriaFisica *mem);
 
 // Remove uma página do frame específico 
 void removerFrame(MemoriaFisica *mem, Processo *processoDono, int frame_id);
